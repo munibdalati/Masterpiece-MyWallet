@@ -23,7 +23,8 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#1b1c57",
     paddingHorizontal: 10,
-    paddingVertical: 30,
+    paddingTop:60,
+    paddingBottom:30
   },
   headerFirstRow: {
     display: "flex",

@@ -1,55 +1,75 @@
 import { View, Text, StyleSheet } from "react-native";
-import { globalStyles } from "../styles/global";
-import { Feather } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 
-export default function Header() {
+export default function HeaderSummary() {
   return (
-    <View style={styles.header}>
-      <View style={styles.headerFirstRow}>
-        <Text style={styles.headerText}>المتبقي</Text>
-        <Text style={styles.headerText}>الدخل</Text>
-        <Text style={styles.headerText}>المصاريف</Text>
-
-        <Text style={styles.headerText}>الشهر</Text>
+    <View style={styles.headerSummary}>
+      <View style={styles.section}>
+        <Text style={styles.headerSummaryTitle}>المتبقي</Text>
+        <Text style={styles.remaining}>600 $</Text>
       </View>
-      <View style={styles.headerFirstRow}>
-        <Text style={styles.headerText}>600 $</Text>
-        <Text style={styles.headerText}>1000 $</Text>
-        <Text style={styles.headerText}>400 $</Text>
+      <View style={styles.section}>
+        <Text style={styles.headerSummaryTitle}>الدخل</Text>
+        <Text style={styles.income}>1000 $</Text>
+      </View>
+      <View style={styles.section}>
+        <Text style={styles.headerSummaryTitle}>المصاريف</Text>
+        <Text style={styles.expenses}>400 $</Text>
+      </View>
+      <View style={styles.section}>
+        <View style={styles.monthTitle}>
+          <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
+          <Text style={styles.headerSummaryTitle}>الشهر</Text>
+        </View>
 
-        <Text style={styles.headerText}>حزيران 2023</Text>
+        <Text style={styles.month}>حزيران 2023</Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
+  headerSummary: {
     backgroundColor: "#323375",
     paddingHorizontal: 10,
     paddingVertical: 30,
-  },
-  headerFirstRow: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingBottom: 10,
   },
-  headerSecondRow: {
+  section: {
+    display: "flex",
+    flexDirection: "column",
+    color: "white",
+  },
+  headerSummaryTitle: {
+    color: "white",
+    textAlign: "center",
+    paddingBottom: 10,
+    fontSize: 16,
+  },
+  remaining: {
+    color: "yellow",
+    textAlign: "center",
+    fontSize: 16,
+  },
+  income: {
+    color: "green",
+    textAlign: "center",
+    fontSize: 16,
+  },
+  expenses: {
+    color: "#ff0000",
+    textAlign: "center",
+    fontSize: 16,
+  },
+  month: {
+    color: "white",
+    textAlign: "center",
+    fontSize: 16,
+  },
+  monthTitle: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-  },
-  headerText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  total: {
-    color: "#008000",
-    fontWeight: "bold",
-    fontSize: 16,
   },
 });
