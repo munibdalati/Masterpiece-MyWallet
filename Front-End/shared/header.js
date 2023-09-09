@@ -2,18 +2,26 @@ import { View, Text, StyleSheet } from "react-native";
 import { globalStyles } from "../styles/global";
 import { Feather } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-export default function Header() {
+
+export default function Header({ title, showTotal }) {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.header}>
       <View style={styles.headerFirstRow}>
-        <Feather name="settings" size={24} color="white" />
+        <Feather name="settings" size={24} color="white"
+        onPress={() => {
+          navigation.navigate("Settings");
+        }} />
         <Text style={styles.headerText}>محفظتي</Text>
         <Entypo name="pie-chart" size={24} color="white" />
       </View>
+
       <View style={styles.headerSecondRow}>
-        <Text style={styles.total}>10,000 $</Text>
-        <Text style={styles.headerText}>مجموع الميزانية :</Text>
+        {showTotal && <Text style={styles.total}>10,000 $</Text>}
+        <Text style={styles.headerSecondText}>{title}</Text>
       </View>
     </View>
   );
@@ -21,18 +29,16 @@ export default function Header() {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#1b1c57",
+    backgroundColor: globalStyles.primaryColor,
     paddingHorizontal: 10,
-    paddingTop:60,
-    paddingBottom:30
+    paddingTop: 60,
+    paddingBottom: 30,
   },
   headerFirstRow: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingBottom:10
-
-
+    paddingBottom: 10,
   },
   headerSecondRow: {
     display: "flex",
@@ -43,12 +49,16 @@ const styles = StyleSheet.create({
   headerText: {
     color: "white",
     fontWeight: "bold",
-    fontSize:16
+    fontSize: 20,
+  },
+  headerSecondText:{
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
   total: {
     color: "#008000",
     fontWeight: "bold",
-    fontSize:16
-
+    fontSize: 16,
   },
 });

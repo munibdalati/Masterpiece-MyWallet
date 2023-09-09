@@ -1,16 +1,18 @@
 import React from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-
 import Header from "../shared/header";
 import HeaderSummary from "../shared/headerSummary";
-import DaySummary from "../components/daySummary";
-import PlusMinus from "../components/plusMinus";
+import DaySummary from "../components/homePage/daySummary";
+import PlusMinus from "../components/homePage/plusMinus";
+import { globalStyles } from "../styles/global";
+
 
 export default function Home() {
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Header />
+        <Header title="مجموع الميزانية :" showTotal={true} />
         <HeaderSummary />
         <ScrollView>
           <DaySummary />
@@ -35,6 +37,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1, // This makes the container take up the entire screen.
+    backgroundColor:globalStyles.secondaryColor
   },
   content: {
     flex: 1, // This allows the content to take up available space above PlusMinus.

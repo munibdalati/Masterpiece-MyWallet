@@ -1,5 +1,9 @@
 {
   "dependencies": {
+    "@react-native-community/datetimepicker": "^7.5.0",
+    "@react-navigation/native": "^6.1.7",
+    "@react-navigation/stack": "^6.3.17",
+    "react-native-modal-datetime-picker": "^17.1.0",
     "react-native-splash-screen": "^3.3.0"
   }
 }

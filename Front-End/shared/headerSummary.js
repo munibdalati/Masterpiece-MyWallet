@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { globalStyles } from "../styles/global";
 
 export default function HeaderSummary() {
   return (
@@ -30,7 +31,7 @@ export default function HeaderSummary() {
 
 const styles = StyleSheet.create({
   headerSummary: {
-    backgroundColor: "#323375",
+    backgroundColor: globalStyles.secondaryColor,
     paddingHorizontal: 10,
     paddingVertical: 30,
     display: "flex",
