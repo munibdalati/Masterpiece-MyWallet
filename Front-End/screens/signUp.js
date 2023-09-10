@@ -49,7 +49,7 @@ export default function SignUp() {
     }
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/user/register",
+        "http://10.0.2.2:5000/api/user/register",
         { username, email, password },
         config
       );

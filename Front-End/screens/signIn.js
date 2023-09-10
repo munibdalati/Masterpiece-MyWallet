@@ -33,7 +33,7 @@ export default function SignIn({ navigation }) {
 
   const handleLogin = (credential, setSubmitting) => {
     handleMessage(null);
-    const url = "http://:5000/api/user/login";
+    const url = "http://10.0.2.2:5000/api/user/login";
     axios
       .post(url, credential)
       .then((response) => {
