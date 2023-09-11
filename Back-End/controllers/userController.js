@@ -2,6 +2,12 @@ const crypto = require("crypto");
 const User = require("../models/userModel");
 const ErrorResponse = require("../utils/errorResponse");
 const sendEmail = require("../utils/sendEmail");
+const jwt = require("jsonwebtoken");
+
+
+const createToken = (_id) => {
+  return jwt.sign({ _id }, process.env.JWT_SECRET, { expiresIn: "3d" });
+};
 
 //-------------register route----------------------
 exports.register = async (req, res) => {
@@ -14,7 +20,9 @@ exports.register = async (req, res) => {
   try {
     const user = await User.addUser(username, email, password);
     //adding token to let token take a value
-    const token = user.getSignedToken();
+    // const token = user.getSignedToken();
+    const token = createToken(user._id);
+
 
     //1-Send the response with the username and token
     res.status(200).json({
@@ -39,7 +47,9 @@ exports.loginUser = async (req, res) => {
     const user = await User.login(email, password);
 
     // create token
-    const token = user.getSignedToken();
+    // const token = user.getSignedToken();
+    const token = createToken(user._id);
+
     res.status(200).json({
       status: "success",
       data: {
