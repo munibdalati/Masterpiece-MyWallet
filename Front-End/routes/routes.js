@@ -11,9 +11,16 @@ const Stack = createNativeStackNavigator();
 
 const Routes = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      initialRouteName="SignUp" 
+    >
       <Stack.Screen
-        name="Home"
+        name="SignUp"
+        component={SignUp}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="HomePage"
         component={Home}
         options={{ headerShown: false }}
       />
@@ -30,11 +37,6 @@ const Routes = () => {
       <Stack.Screen
         name="Settings"
         component={Settings}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="SignUp"
-        component={SignUp}
         options={{ headerShown: false }}
       />
 

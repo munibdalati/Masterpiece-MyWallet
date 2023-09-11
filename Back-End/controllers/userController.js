@@ -4,73 +4,55 @@ const ErrorResponse = require("../utils/errorResponse");
 const sendEmail = require("../utils/sendEmail");
 
 //-------------register route----------------------
-exports.register = async (req, res, next) => {
+exports.register = async (req, res) => {
   console.log("Received registration request with data:");
   console.log("Username:", req.body.username);
   console.log("Email:", req.body.email);
   console.log("Password:", req.body.password);
-  //adding usertype from user.js (schema)
-  const { username, email, password, userType } = req.body;
+
+  const { username, email, password } = req.body;
   try {
-    const user = await User.create({
-      username,
-      email,
-      password,
-      userType
-    });
+    const user = await User.addUser(username, email, password);
     //adding token to let token take a value
     const token = user.getSignedToken();
 
     //1-Send the response with the username and token
     res.status(200).json({
-      success: true,
-      username: user.username,
-      email: user.email,
-      userType: user.userType,
+      status: "success",
+      data: {
+        user,
+      },
       token: token,
     });
-    sendToken(user, 201, res);
+    // sendToken(user, 201, res);
   } catch (error) {
-    next(error);
+    res.status(400).json({ status: "fail", error: error.message });
+    // next(error);
   }
 };
 
 //--------------login route----------------------
-exports.login = async (req, res, next) => {
+exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return next(new ErrorResponse("Please provide an email and password", 400));
-  }
   try {
-    const user = await User.findOne({ email }).select("+password");
-    //checking the email
-    if (!user) {
-      return next(new ErrorResponse("Invalid credentials", 401));
-    }
-    //checking the password
-    const isMatch = await user.matchPasswords(password);
-    if (!isMatch) {
-      return next(new ErrorResponse("Invalid credentials", 401));
-    }
-    const token = user.getSignedToken();
+    const user = await User.login(email, password);
 
-    //1-Send the response with the username and token
+    // create token
+    const token = user.getSignedToken();
     res.status(200).json({
-      success: true,
-      username: user.username,
-      email: user.email,
-      userType: user.userType, // Include the userType in the response so the browser can figure out if the user is admin of not when logging in
+      status: "success",
+      data: {
+        user,
+      },
       token: token,
     });
-
-    sendToken(user, 201, res);
   } catch (error) {
-    next(error);
+    res.status(400).json({ status: "fail", error: error.message });
   }
 };
-
 //---------------forgotpassword route--------------
+
 exports.forgotPassword = async (req, res, next) => {
   const { email } = req.body;
   try {
@@ -137,9 +119,6 @@ exports.resetPassword = async (req, res, next) => {
     next(error);
   }
 };
-
-
-
 
 const sendToken = (user, statusCode, res) => {
   // const token = user.getSignedJwtToken();

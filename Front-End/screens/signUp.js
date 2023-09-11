@@ -18,6 +18,23 @@ import FlatButton from "../shared/FlatBtn";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// Validation
+const reviewSchema = yup.object({
+  username: yup
+    .string()
+    .required("الحقل مطلوب")
+    .min(2, "يجب أن يتألف الاسم من حرفين على الأقل"),
+  email: yup.string().required("مطلوب").email("أدخل بريد إلكتروني صالح"),
+  password: yup
+    .string()
+    .required("الحقل مطلوب")
+    .min(6, "كلمة السر يجب أن تكون مؤلفة من 6 رموز على الأقل"),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password"), null], "كلمتا السر غير متطابقتان")
+    .required("الحقل مطلوب"),
+});
+
 export default function SignUp() {
   const navigation = useNavigation();
   const [error, setError] = useState("");
@@ -26,13 +43,14 @@ export default function SignUp() {
     const checkAuth = async () => {
       const authToken = await AsyncStorage.getItem("authToken");
       if (authToken) {
-        navigation.navigate("Home");
+        navigation.navigate("HomePage");
       }
     };
     checkAuth();
   }, []);
 
   const registerHandler = async (values) => {
+    const url = "http://10.0.2.2:5000/api/user/register";
     const { username, email, password, confirmPassword } = values;
 
     const config = {
@@ -41,30 +59,24 @@ export default function SignUp() {
       },
     };
     if (password !== confirmPassword) {
-      setError("كلمتا السر غير متطابقتان");
       setTimeout(() => {
         setError("");
       }, 5000);
-      return;
+      return setError("كلمتا السر غير متطابقتان");
     }
     try {
-      const response = await axios.post(
-        "http://10.0.2.2:5000/api/user/register",
-        { username, email, password },
-        config
-      );
-      const data = response.data; // Access the response data
+      const { data } = await axios.post(url, values, config);
       console.log("data:", data);
       await AsyncStorage.setItem("authToken", data.token);
       await AsyncStorage.setItem("username", username);
       await AsyncStorage.setItem("login", "true");
-      navigation.navigate("Home");
+      navigation.navigate("HomePage");
     } catch (error) {
       console.log("Error:", error);
-      setError(error.response?.data?.error || "An error occurred");
+      setError(error.response.data.error || "An error occurred");
       setTimeout(() => {
         setError("");
-      }, 10000);
+      }, 5000);
     }
   };
 
@@ -75,6 +87,7 @@ export default function SignUp() {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.formContainer}>
             <Formik
+              validationSchema={reviewSchema}
               initialValues={{
                 username: "",
                 email: "",
@@ -139,6 +152,8 @@ export default function SignUp() {
                     {props.touched.confirmPassword &&
                       props.errors.confirmPassword}
                   </Text>
+                  {/* error message */}
+                  <Text style={styles.mainErrorText}>{error}</Text>
 
                   {/* زر إنشاء الحساب */}
                   <FlatButton
@@ -163,7 +178,6 @@ export default function SignUp() {
                 </View>
               )}
             </Formik>
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
         </ScrollView>
       </View>
@@ -199,11 +213,6 @@ const styles = StyleSheet.create({
     textAlign: "right",
     paddingVertical: 5,
   },
-  subtext: {
-    marginTop: 16,
-    fontSize: 16,
-    textAlign: "right",
-  },
 
   link: {
     color: globalStyles.quaternaryColor,
@@ -226,5 +235,16 @@ const styles = StyleSheet.create({
   createBtnText: {
     color: "#fff",
     fontSize: 18,
+  },
+  mainErrorText: {
+    color: "red",
+    textAlign: "center",
+    marginVertical: 5,
+  },
+  subtext: {
+    marginTop: 16,
+    fontSize: 16,
+    textAlign: "right",
+    marginBottom: 20,
   },
 });

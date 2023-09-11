@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { globalStyles } from "../../styles/global";
 
 
@@ -37,7 +36,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingBottom:5,
     borderBottomColor: "black",
-    borderBottomWidth: "1px",  
+    borderBottomWidth: 1,
   },
   dayTotalText: {
     color: globalStyles.primaryColor,

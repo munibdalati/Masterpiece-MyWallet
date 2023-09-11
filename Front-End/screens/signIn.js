@@ -1,6 +1,6 @@
 import { globalStyles } from "../styles/global";
 import Header from "../shared/header";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import * as yup from "yup";
 import FlatButton from "../shared/FlatBtn";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Validation
 const reviewSchema = yup.object({
@@ -27,37 +28,50 @@ const reviewSchema = yup.object({
     .min(6, "كلمة السر يجب أن تكون مؤلفة من 6 رموز على الأقل"),
 });
 
-export default function SignIn({ navigation }) {
-  const [massege, setMassege] = useState();
-  const [massegeType, setMassegeType] = useState();
+export default function SignIn() {
+  const navigation = useNavigation();
+  const [error, setError] = useState("");
+  const [LoggedIn, setLoggedIn] = useState("");
 
-  const handleLogin = (credential, setSubmitting) => {
-    handleMessage(null);
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authToken = await AsyncStorage.getItem("authToken");
+      
+      if (authToken) {
+        navigation.navigate("HomePage");
+      }
+    };
+    checkAuth();
+  }, []);
+
+
+  const loginHandler = async (values) => {
     const url = "http://10.0.2.2:5000/api/user/login";
-    axios
-      .post(url, credential)
-      .then((response) => {
-        const result = response.data;
-        const { status, message, data } = result;
+    const { email, password } = values;
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-        if (status !== "SUCCESS") {
-          handleMessage(message, status);
-        } else {
-          navigation.navigate("Home", { ...data[0] });
-        }
-        setSubmitting(false);
-      })
-      .catch((error) => {
-        console.error(error); // Log the error for debugging purposes
-        setSubmitting(false);
+    try {
+      const { data } = await axios.post(url, values, config);
+      console.log("data:", data);
 
-        handleMessage("an error occurred. Check your network and try again.");
-      });
-  };
-
-  const handleMessage = (message, type = "FAILED") => {
-    setMassege(message);
-    setMassegeType(type);
+      const username = data.data.user.username;
+      await AsyncStorage.setItem("authToken", data.token);
+      console.log(data.token)
+      console.log(data.data.user.username)
+      await AsyncStorage.setItem("username", username);
+      navigation.navigate("HomePage");
+      setLoggedIn(true); // Update the loggedIn state
+    } catch (error) {
+      console.log("Error:", error);
+      setError(error.response.data.error || "An error occurred");
+      setTimeout(() => {
+        setError("");
+      }, 5000);
+    }
   };
 
   return (
@@ -67,19 +81,12 @@ export default function SignIn({ navigation }) {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.formContainer}>
             <Formik
-              // validationSchema={reviewSchema}
+              validationSchema={reviewSchema}
               initialValues={{
                 email: "",
                 password: "",
               }}
-              onSubmit={(values, { setSubmitting }) => {
-                if (values.email == "" || values.password == "") {
-                  handleMessage("املأ جميع الحقول");
-                  setSubmitting(false);
-                } else {
-                  handleLogin(values, setSubmitting);
-                }
-              }}
+              onSubmit={(values) => loginHandler(values)}
             >
               {(props) => (
                 <View style={styles.form}>
@@ -109,25 +116,23 @@ export default function SignIn({ navigation }) {
                   <Text style={styles.errorText}>
                     {props.touched.password && props.errors.password}
                   </Text>
-                  <Text style={styles.MsgBox} type={massegeType}>
-                    {massege}
-                  </Text>
+                  <Text style={styles.mainErrorText}>{error}</Text>
+                  {/* زر تسجيل الدخول */}
 
-                  {/* زر إنشاء الحساب */}
-                  {!props.isSubmitting && (
-                    <FlatButton
-                      text="تسجيل الدخول"
-                      style={styles.createBtn}
-                      onPress={props.handleSubmit}
-                    />
-                  )}
-                  {props.isSubmitting && (
+                  <FlatButton
+                    text="تسجيل الدخول"
+                    style={styles.createBtn}
+                    onPress={props.handleSubmit}
+                    type="submit"
+                  />
+
+                  {/* {props.isSubmitting && (
                     <TouchableOpacity disabled={true}>
                       <ActivityIndicator />
                     </TouchableOpacity>
-                  )}
+                  )} */}
 
-                  {/* عندك حساب؟ */}
+                  {/* ليس عندك حساب؟ */}
                   <Text style={styles.subtext}>
                     ليس عندك حساب؟{" "}
                     <Text
@@ -186,9 +191,9 @@ const styles = StyleSheet.create({
     color: globalStyles.quaternaryColor,
     fontWeight: "bold",
   },
-  MsgBox: {
+  mainErrorText: {
+    color: "red",
     textAlign: "center",
-    fontSize: 13,
-    // color: ${props => props.type == 'SUCCESS' ? "green" : "red"}
+    marginVertical: 5,
   },
 });

@@ -10,10 +10,21 @@ import {
 import Header from "../shared/header";
 import { useNavigation } from "@react-navigation/native";
 import { globalStyles } from "../styles/global";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Settings() {
   const [language, setLanguage] = useState("العربية");
   const navigation = useNavigation();
+
+  Logoff = async () => {
+    try {
+      await AsyncStorage.removeItem("authToken");
+      await AsyncStorage.removeItem("username");
+      // await AsyncStorage.clear();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <View style={styles.setting}>
@@ -21,7 +32,12 @@ export default function Settings() {
       <ScrollView>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>الإعدادات العامة</Text>
-          <TouchableOpacity style={styles.item}>
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => {
+              navigation.navigate("SignIn");
+            }}
+          >
             <Text style={styles.itemText}>الملف الشخصي</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -70,7 +86,13 @@ export default function Settings() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>معلومات الحساب</Text>
-          <TouchableOpacity style={styles.item}>
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => {
+              Logoff();
+              navigation.navigate("SignUp");
+            }}
+          >
             <Text style={styles.itemText}>تسجيل الخروج</Text>
           </TouchableOpacity>
         </View>

@@ -9,11 +9,11 @@ const UserSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, "الرجاء إدخال اسمك"],
+      required: true,
     },
     email: {
       type: String,
-      required: [true, "الرجاء إدخال بريدك الإلكتروني"],
+      required: true,
       unique: true,
       match: [
         /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
@@ -22,11 +22,11 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "أدخل كلمة سر"],
+      required: true,
       minlength: 6,
       select: false, // we don't want to return password
     },
-    //adding useType to the Schema to show if the user is user or admin
+    // adding useType to the Schema to show if the user is user or admin
     userType: {
       type: String,
     },
@@ -35,13 +35,14 @@ const UserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-// -----------------new static signup method -----------------
+// -----------------Sign up method -----------------
 UserSchema.statics.addUser = async function (
   username,
   email,
   password,
+  userType ="user"
 ) {
-  //validation
+  // validation
   if (!username || !email || !password) {
     throw Error("كل الحقول يجب أن تُملأ");
   }
@@ -52,11 +53,37 @@ UserSchema.statics.addUser = async function (
     throw Error("البريد الإلكتروني المدخل مستخدم سابقًا");
   }
 
-  const user = await this.create({ username, email, password });
+  const user = await this.create({ username, email, password, userType });
 
   return user;
 };
 
+// -----------------Sign in method -----------------
+UserSchema.statics.login = async function (email, password, isAdmin = false) {
+  //validation
+
+  if (!email || !password) {
+    throw Error("كل الحقول يجب أن تُملأ");
+  }
+
+  const user = await this.findOne({ email }).select("+password");
+
+  if (!user) {
+    throw Error("البريد الإلكتروني أو كلمة السر غير صحيحة");
+  }
+
+  if (isAdmin && user.role !== "admin") {
+    throw new Error("لا تملك صلاحيات الأدمن");
+  }
+
+  const match = await bcrypt.compare(password, user.password);
+
+  if (!match) {
+    throw Error("البريد الإلكتروني أو كلمة السر غير صحيحة");
+  }
+
+  return user;
+};
 // ----------------- save -----------------
 
 UserSchema.pre("save", async function (next) {
