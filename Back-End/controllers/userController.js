@@ -61,6 +61,51 @@ exports.loginUser = async (req, res) => {
     res.status(400).json({ status: "fail", error: error.message });
   }
 };
+
+//--------------update route----------------------
+exports.updateUser = async (req, res) => {
+  const { username } = req.body;
+  const { email } = req.body;
+  const { password } = req.body;
+  const id = req.params.id;
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      { _id: id },
+      {
+        username: username,
+        email: email,
+        password: password,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      data: {
+        user,
+      },
+    });
+  } catch (error) {
+    console.error("Update error:", error); // Add this line for debugging
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+
+
 //---------------forgotpassword route--------------
 
 exports.forgotPassword = async (req, res, next) => {

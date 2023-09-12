@@ -20,7 +20,8 @@ export default function Settings() {
     try {
       await AsyncStorage.removeItem("authToken");
       await AsyncStorage.removeItem("username");
-      // await AsyncStorage.clear();
+      await AsyncStorage.removeItem("email");
+      await AsyncStorage.removeItem("password");
     } catch (err) {
       console.log(err);
     }
@@ -28,25 +29,17 @@ export default function Settings() {
 
   return (
     <View style={styles.setting}>
-      <Header title="الإعدادات" showTotal={false} />
+      <Header title="الإعدادات" showTotal={false} loggedIn={true} homeIcon={true}/>
       <ScrollView>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>الإعدادات العامة</Text>
           <TouchableOpacity
             style={styles.item}
             onPress={() => {
-              navigation.navigate("SignIn");
+              navigation.navigate("Personal");
             }}
           >
             <Text style={styles.itemText}>الملف الشخصي</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.item}
-            onPress={() => {
-              navigation.navigate("SignUp");
-            }}
-          >
-            <Text style={styles.itemText}>إنشاء حساب </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item}>
             <Text style={styles.itemText}>الصرف</Text>

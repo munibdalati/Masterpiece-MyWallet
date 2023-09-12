@@ -5,8 +5,20 @@ import { useNavigation } from "@react-navigation/native";
 import { globalStyles } from "../../styles/global";
 3;
 import { FontAwesome5 } from "@expo/vector-icons";
+import amountHandler from "./amountEntryExpense"
 
 export default function AddExpenseBtn() {
+  const handleAddExpense = () => {
+    // Replace these sample values with the actual values you want to pass to amountHandler
+    const values = {
+      categoryValue: "1",
+      textInputValue: "100",
+      currencyValue: "1",
+    };
+
+    // Call the amountHandler function with the values
+    amountHandler(values);
+  };
   return (
     <View>
       <TouchableOpacity>

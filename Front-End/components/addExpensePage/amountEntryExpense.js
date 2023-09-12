@@ -14,6 +14,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { globalStyles } from "../../styles/global";
+import { AddExpense } from "./addExpense"; // Import the addExpense function
+
 
 function CustomDropdownArrow() {
   return (
@@ -32,6 +34,8 @@ export default function AmountEntry() {
   const creditCardIcon = <Entypo name="credit-card" size={20} color="black" />;
 
   const navigation = useNavigation();
+
+
   const data = [
     { label: "كاش", value: "1", icon: cashIcon },
     { label: "بطاقة ائتمانية", value: "2", icon: creditCardIcon },
@@ -63,6 +67,49 @@ export default function AmountEntry() {
   const [categoryValue, setCategoryValue] = useState(null);
   const [isFocusCategory, setIsFocusCategory] = useState(false);
   const [textInputValue, setTextInputValue] = useState("");
+
+  const [error, setError] = useState("");
+
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     const authToken = await AsyncStorage.getItem("authToken");
+  //     if (authToken) {
+  //       navigation.navigate("HomePage");
+  //     }
+  //   };
+  //   checkAuth();
+  // }, []);
+
+  const amountHandler = async () => {
+    try {
+      const response = await AddExpense(
+        categoryValue,
+        textInputValue,
+        currencyValue
+      );
+
+      // Assuming you want to store some data in AsyncStorage
+      // Replace the following lines with the data you want to store
+      const id = response.id;
+      await AsyncStorage.multiSet([
+        ["_id", id],
+        ["category", categoryValue],
+        ["amount", textInputValue],
+        ["currency", currencyValue],
+        // Add more key-value pairs as needed
+      ]);
+
+      navigation.navigate("HomePage");
+
+      console.log("Expense added successfully:", response);
+    } catch (error) {
+      console.error("Error adding expense:", error);
+      setError(error.response.data.error || "An error occurred");
+      setTimeout(() => {
+        setError("");
+      }, 5000);
+    }
+  };
 
 
 

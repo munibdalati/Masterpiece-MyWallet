@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Header title="مجموع الميزانية :" showTotal={true} />
+        <Header title="مجموع الميزانية :" showTotal={true} loggedIn={true} />
         <HeaderSummary />
         <ScrollView>
           <DaySummary />

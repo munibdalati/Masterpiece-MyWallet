@@ -67,9 +67,15 @@ export default function SignUp() {
     try {
       const { data } = await axios.post(url, values, config);
       console.log("data:", data);
-      await AsyncStorage.setItem("authToken", data.token);
-      await AsyncStorage.setItem("username", username);
-      await AsyncStorage.setItem("login", "true");
+      const id = data.data.user._id;
+
+      await AsyncStorage.multiSet([
+        ["authToken", data.token],
+        ["_id", id],
+        ["username", username],
+        ["password", password],
+        ["email", email],
+      ]);
       navigation.navigate("HomePage");
     } catch (error) {
       console.log("Error:", error);
@@ -83,7 +89,7 @@ export default function SignUp() {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
-        <Header title="إنشاء حساب" showTotal={false} />
+        <Header title="إنشاء حساب" showTotal={false} loggedIn={false} />
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.formContainer}>
             <Formik

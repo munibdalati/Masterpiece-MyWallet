@@ -84,6 +84,8 @@ UserSchema.statics.login = async function (email, password, isAdmin = false) {
 
   return user;
 };
+
+
 // ----------------- save -----------------
 
 UserSchema.pre("save", async function (next) {
@@ -119,6 +121,6 @@ UserSchema.methods.getResetPasswordToken = function () {
 
   return resetToken;
 };
-const userModel = mongoose.model("userModel", UserSchema);
+const userModel = mongoose.model("users", UserSchema);
 
 module.exports = userModel;

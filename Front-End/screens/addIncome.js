@@ -10,7 +10,7 @@ import { globalStyles } from "../styles/global";
 export default function AddIncome() {
   return (
     <View style={styles.AddIncome}>
-      <Header title="تسجيل دخل" showTotal={false} />
+      <Header title="تسجيل دخل" showTotal={false} loggedIn={true} homeIcon={true}/>
       <HeaderSummary />
       <DateSelectionIncome />
       <AmountEntryIncome/>

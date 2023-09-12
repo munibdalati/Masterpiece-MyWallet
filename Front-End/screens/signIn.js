@@ -31,19 +31,16 @@ const reviewSchema = yup.object({
 export default function SignIn() {
   const navigation = useNavigation();
   const [error, setError] = useState("");
-  const [LoggedIn, setLoggedIn] = useState("");
 
   useEffect(() => {
     const checkAuth = async () => {
       const authToken = await AsyncStorage.getItem("authToken");
-      
       if (authToken) {
         navigation.navigate("HomePage");
       }
     };
     checkAuth();
   }, []);
-
 
   const loginHandler = async (values) => {
     const url = "http://10.0.2.2:5000/api/user/login";
@@ -56,15 +53,22 @@ export default function SignIn() {
 
     try {
       const { data } = await axios.post(url, values, config);
-      console.log("data:", data);
 
       const username = data.data.user.username;
-      await AsyncStorage.setItem("authToken", data.token);
-      console.log(data.token)
-      console.log(data.data.user.username)
-      await AsyncStorage.setItem("username", username);
+      const id = data.data.user._id;
+
+      await AsyncStorage.multiSet([
+        ["authToken", data.token],
+        ["_id", id],
+        ["username", username],
+        ["password", password],
+        ["email", email],
+      ]);
+
       navigation.navigate("HomePage");
-      setLoggedIn(true); // Update the loggedIn state
+
+      console.log("data:", data);
+      console.log(data.data.user.username);
     } catch (error) {
       console.log("Error:", error);
       setError(error.response.data.error || "An error occurred");
@@ -77,7 +81,7 @@ export default function SignIn() {
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
-        <Header title="تسجيل دخول" showTotal={false} />
+        <Header title="تسجيل دخول" showTotal={false} loggedIn={false} />
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.formContainer}>
             <Formik
