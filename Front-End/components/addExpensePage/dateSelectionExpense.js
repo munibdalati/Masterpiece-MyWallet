@@ -13,7 +13,9 @@ import { globalStyles } from "../../styles/global";
 
 export default function DateSelectionExpense() {
   const navigation = useNavigation();
+  
   const [date, setDate] = useState(new Date());
+
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
   const [text, setText] = useState("");

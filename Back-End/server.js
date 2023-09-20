@@ -3,8 +3,7 @@ const express = require("express");
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 const userRoutes = require("./routes/userRoutes");
-const expenseRoutes = require("./routes/expenseRoutes");
-const incomeRoutes = require("./routes/incomeRoutes");
+const walletRoutes = require("./routes/walletRoutes");
 const cors = require("cors");
 
 // express app
@@ -28,10 +27,9 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.use("/api/private", require("./routes/private"));
 app.use("/api/user", userRoutes);
-app.use("/api/expense", expenseRoutes);
-app.use("/api/income", incomeRoutes);
+app.use("/api/wallet", walletRoutes);
+
 
 // Port
 const PORT = 5000;

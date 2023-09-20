@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,39 +14,46 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { globalStyles } from "../../styles/global";
-import { AddExpense } from "./addExpense"; // Import the addExpense function
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
-
+// Define a custom component for the dropdown arrow icon
 function CustomDropdownArrow() {
   return (
     <MaterialCommunityIcons
       name="chevron-down"
       size={24}
-      color="white" // Set the color to white
+      color="white"
     />
   );
 }
 
-export default function AmountEntry() {
+export default function AmountEntryExpense() {
+  // Define icons for cash and credit card
   const cashIcon = (
     <MaterialCommunityIcons name="cash" size={24} color="black" />
   );
-  const creditCardIcon = <Entypo name="credit-card" size={20} color="black" />;
+  const creditCardIcon = (
+    <Entypo name="credit-card" size={20} color="black" />
+  );
 
+  // Get the navigation object from the navigation stack
   const navigation = useNavigation();
 
-
+  // Define dropdown data for payment method, currency, and category
   const data = [
-    { label: "كاش", value: "1", icon: cashIcon },
-    { label: "بطاقة ائتمانية", value: "2", icon: creditCardIcon },
-  ];
-  const currency = [
-    { label: "USD", value: "1" },
-    { label: "JOD", value: "2" },
-    { label: "EUR", value: "3" },
+    { label: "كاش", value: "كاش", icon: cashIcon },
+    { label: "بطاقة ائتمانية", value: "بطاقة ائتمانية", icon: creditCardIcon },
   ];
 
-  const category = [
+  const currencyData = [
+    { label: "USD", value: "USD" },
+    { label: "JOD", value: "JOD" },
+    { label: "EUR", value: "EUR" },
+  ];
+
+  const categoryData = [
     { label: "أجار", value: "1" },
     { label: "انترنت", value: "2" },
     { label: "بنزين", value: "3" },
@@ -60,59 +67,101 @@ export default function AmountEntry() {
     { label: "طبيب", value: "11" },
   ];
 
-  const [valueType, setValueType] = useState(null);
-  const [isFocusType, setIsFocusType] = useState(false);
-  const [currencyValue, setCurrencyValue] = useState(null);
+  // Define state variables for form inputs
+  const [currency, setCurrency] = useState(null);
   const [isFocusCurrency, setIsFocusCurrency] = useState(false);
-  const [categoryValue, setCategoryValue] = useState(null);
+  const [category, setCategory] = useState(null);
+  const [cashCard, setCashCard] = useState(null);
+  const [isFocusCashCard, setIsFocusCashCard] = useState(false);
   const [isFocusCategory, setIsFocusCategory] = useState(false);
-  const [textInputValue, setTextInputValue] = useState("");
+  const [value, setValue] = useState("");
+  const [id, setId] = useState("");
+
+  // Define state variables for date picker
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState("date");
+  const [show, setShow] = useState(false);
+  const [text, setText] = useState("");
 
   const [error, setError] = useState("");
 
-  // useEffect(() => {
-  //   const checkAuth = async () => {
-  //     const authToken = await AsyncStorage.getItem("authToken");
-  //     if (authToken) {
-  //       navigation.navigate("HomePage");
-  //     }
-  //   };
-  //   checkAuth();
-  // }, []);
+  // Handle date change in the date picker
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === "ios"); // Hide the DateTimePicker on iOS
+    setDate(currentDate);
 
-  const amountHandler = async () => {
+    // Format the selected date and set it as text
+    let tempDate = new Date(currentDate);
+    let daysOfWeek = [
+      "الأحد",
+      "الاثنين",
+      "الثلاثاء",
+      "الأربعاء",
+      "الخميس",
+      "الجمعة",
+      "السبت",
+    ];
+    let dayOfWeek = daysOfWeek[tempDate.getDay()];
+    let formattedDate =
+      dayOfWeek +
+      " " +
+      tempDate.getDate() +
+      " / " +
+      (tempDate.getMonth() + 1) +
+      " / " +
+      tempDate.getFullYear();
+    setText(formattedDate);
+  };
+
+  // Show the date picker with the specified mode
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  // Handle date picker confirm button press
+  const handleConfirm = () => {
+    setShow(false);
+  };
+
+  // Handle expense submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
     try {
-      const response = await AddExpense(
-        categoryValue,
-        textInputValue,
-        currencyValue
+      const response = await axios.post(
+        `http://10.0.2.2:5000/api/wallet/addTransaction/${id}`,
+        {
+          category,
+          value,
+          date,
+          cashCard,
+          currency,
+        },
+        config
       );
 
-      // Assuming you want to store some data in AsyncStorage
-      // Replace the following lines with the data you want to store
-      const id = response.id;
-      await AsyncStorage.multiSet([
-        ["_id", id],
-        ["category", categoryValue],
-        ["amount", textInputValue],
-        ["currency", currencyValue],
-        // Add more key-value pairs as needed
-      ]);
+      console.log(response.data.token);
+      console.log(response.data);
 
-      navigation.navigate("HomePage");
-
-      console.log("Expense added successfully:", response);
+      navigate("/HomePage");
     } catch (error) {
       console.error("Error adding expense:", error);
-      setError(error.response.data.error || "An error occurred");
+      setError(error.response?.data?.error || "An error occurred");
       setTimeout(() => {
         setError("");
       }, 5000);
     }
   };
 
-
-
+  // Define a function to render dropdown items
   const renderItem = (item) => {
     return (
       <View style={styles.dropdownItem}>
@@ -124,103 +173,152 @@ export default function AmountEntry() {
 
   // Function to clear the TextInput value
   const clearTextInput = () => {
-    setTextInputValue("");
+    setValue("");
   };
+
+  // Retrieve the information from AsyncStorage
+  useEffect(() => {
+    AsyncStorage.getItem("_id")
+      .then((value) => {
+        if (value) {
+          setId(value);
+        }
+      })
+      .catch((error) => {
+        console.error("Error retrieving id:", error);
+      });
+  }, []);
+
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.amountEntry}>
-        <View style={styles.dropDownContainer}>
-          {/* طريقة الدفع */}
-          <View style={styles.dropdownWrapper}>
-            <Dropdown
-              style={[styles.dropdown, isFocusType]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              data={data}
-              maxHeight={100}
-              labelField="label"
-              valueField="value"
-              placeholder={!isFocusType ? "طريقة الدفع" : "..."}
-              value={valueType}
-              onFocus={() => setIsFocusType(true)}
-              onBlur={() => setIsFocusType(false)}
-              onChange={(item) => {
-                setValueType(item.value);
-                setIsFocusType(false);
-              }}
-              renderItem={renderItem} // Custom rendering of dropdown items
-            />
-            <View style={styles.customDropdownArrow}>
-              <CustomDropdownArrow />
-            </View>
-          </View>
-          {/* العملة */}
-          <View style={styles.dropdownWrapper}>
-            <Dropdown
-              style={[styles.dropdown, isFocusCurrency]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              data={currency}
-              maxHeight={150}
-              labelField="label"
-              valueField="value"
-              placeholder={!isFocusCurrency ? " العملة" : "..."}
-              value={currencyValue}
-              onFocus={() => setIsFocusCurrency(true)}
-              onBlur={() => setIsFocusCurrency(false)}
-              onChange={(item) => {
-                setCurrencyValue(item.value);
-                setIsFocusCurrency(false);
-              }}
-              renderItem={renderItem} // Custom rendering of dropdown items
-            />
-            <View style={styles.customDropdownArrow}>
-              <CustomDropdownArrow />
-            </View>
-          </View>
-          {/* فئة المصروف */}
-          <View style={styles.dropdownWrapper}>
-            <Dropdown
-              style={[styles.dropdown, isFocusCategory]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              data={category}
-              maxHeight={150}
-              labelField="label"
-              valueField="value"
-              placeholder={!isFocusCategory ? " فئة المصروف" : "..."}
-              value={categoryValue}
-              onFocus={() => setIsFocusCategory(true)}
-              onBlur={() => setIsFocusCategory(false)}
-              onChange={(item) => {
-                setCategoryValue(item.value);
-                setIsFocusCategory(false);
-              }}
-              renderItem={renderItem} // Custom rendering of dropdown items
-            />
-            <View style={styles.customDropdownArrow}>
-              <CustomDropdownArrow />
-            </View>
-          </View>
-        </View>
-        <View style={styles.TextInputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="0"
-            placeholderTextColor="white" // Set the placeholder text color to white
-            keyboardType="numeric"
-            value={textInputValue}
-            onChangeText={(text) => setTextInputValue(text)} // Update the state when text changes
-          />
-        </View>
-        <View style={styles.TextInputContainer}>
-          <TouchableOpacity style={styles.delete} onPress={clearTextInput}>
-            <Feather name="delete" size={24} color="white" />
+      <View>
+        <View style={styles.dateSelection}>
+          <Text style={styles.dateText}>{text}</Text>
+          <TouchableOpacity
+            onPress={() => showMode("date")}
+            style={styles.selectionBtn}
+          >
+            <Text style={styles.btnText}>اختر يوم المصروف</Text>
           </TouchableOpacity>
+
+          {show && (
+            <View style={styles.confirmBtnContainer}>
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={date}
+                mode={mode}
+                display="spinner"
+                onChange={onChange}
+              />
+              <TouchableOpacity
+                onPress={handleConfirm}
+                style={styles.selectionBtn}
+              >
+                <Text style={styles.btnText}>تأكيد</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+        <View style={styles.amountEntry}>
+          <View style={styles.dropDownContainer}>
+            {/* طريقة الدفع */}
+            <View style={styles.dropdownWrapper}>
+              <Dropdown
+                style={[styles.dropdown, isFocusCashCard]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={data}
+                maxHeight={100}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocusCashCard ? "طريقة الدفع" : "..."}
+                value={cashCard}
+                onFocus={() => setIsFocusCashCard(true)}
+                onBlur={() => setIsFocusCashCard(false)}
+                onChange={(item) => {
+                  setCashCard(item.value);
+                  setIsFocusCashCard(false);
+                }}
+                renderItem={renderItem} // Custom rendering of dropdown items
+              />
+              <View style={styles.customDropdownArrow}>
+                <CustomDropdownArrow />
+              </View>
+            </View>
+            {/* العملة */}
+            <View style={styles.dropdownWrapper}>
+              <Dropdown
+                style={[styles.dropdown, isFocusCurrency]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={currencyData}
+                maxHeight={150}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocusCurrency ? " العملة" : "..."}
+                value={currency}
+                onFocus={() => setIsFocusCurrency(true)}
+                onBlur={() => setIsFocusCurrency(false)}
+                onChange={(item) => {
+                  setCurrency(item.value);
+                  setIsFocusCurrency(false);
+                }}
+                renderItem={renderItem} // Custom rendering of dropdown items
+              />
+              <View style={styles.customDropdownArrow}>
+                <CustomDropdownArrow />
+              </View>
+            </View>
+            {/* فئة المصروف */}
+            <View style={styles.dropdownWrapper}>
+              <Dropdown
+                style={[styles.dropdown, isFocusCategory]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={categoryData}
+                maxHeight={150}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocusCategory ? " فئة المصروف" : "..."}
+                value={category}
+                onFocus={() => setIsFocusCategory(true)}
+                onBlur={() => setIsFocusCategory(false)}
+                onChange={(item) => {
+                  setCategory(item.value);
+                  setIsFocusCategory(false);
+                }}
+                renderItem={renderItem} // Custom rendering of dropdown items
+              />
+              <View style={styles.customDropdownArrow}>
+                <CustomDropdownArrow />
+              </View>
+            </View>
+          </View>
+          <View style={styles.TextInputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="0"
+              placeholderTextColor="white" // Set the placeholder text color to white
+              keyboardType="numeric"
+              value={value}
+              onChangeText={(text) => setValue(text)} // Update the state when text changes
+            />
+          </View>
+          <View style={styles.TextInputContainer}>
+            <TouchableOpacity style={styles.delete} onPress={clearTextInput}>
+              <Feather name="delete" size={24} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleSubmit} // Call the expenseSubmit function when the button is pressed
+            >
+              <Text style={styles.submitButtonText}>Submit</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -307,5 +405,36 @@ const styles = StyleSheet.create({
     top: "50%",
     transform: [{ translateY: -12 }],
     zIndex: 1,
+  },
+
+  dateSelection: {
+    paddingVertical: 20,
+    justifyContent: "center", // Center vertically
+    alignItems: "center", // Center horizontally
+  },
+  dateText: {
+    textAlign: "center",
+    color: globalStyles.primaryColor,
+    fontSize: 16,
+  },
+  selectionBtn: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    marginTop: 10,
+    backgroundColor: globalStyles.primaryColor,
+    borderColor: "white",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    width: 130,
+  },
+  btnText: {
+    color: "white",
+  },
+  confirmBtnContainer: {
+    justifyContent: "center", // Center vertically
+    alignItems: "center", // Center horizontally
   },
 });

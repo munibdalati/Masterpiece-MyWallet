@@ -83,7 +83,7 @@ export default function Settings() {
             style={styles.item}
             onPress={() => {
               Logoff();
-              navigation.navigate("SignUp");
+              navigation.navigate("SignIn");
             }}
           >
             <Text style={styles.itemText}>تسجيل الخروج</Text>

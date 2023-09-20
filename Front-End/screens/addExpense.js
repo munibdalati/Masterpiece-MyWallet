@@ -7,12 +7,12 @@ import AmountEntryExpense from "../components/addExpensePage/amountEntryExpense"
 import AddExpenseBtn from "../components/addExpensePage/addExpenseBtn";
 import { globalStyles } from "../styles/global";
 
+
 export default function AddExpense() {
   return (
     <View style={styles.AddExpense}>
       <Header title="تسجيل مصروف" showTotal={false} loggedIn={true} homeIcon={true}/>
       <HeaderSummary />
-      <DateSelectionExpense />
       <AmountEntryExpense/>
       <AddExpenseBtn/>
     </View>

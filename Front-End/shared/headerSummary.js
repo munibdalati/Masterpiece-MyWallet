@@ -1,21 +1,63 @@
 import { View, Text, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { globalStyles } from "../styles/global";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 export default function HeaderSummary() {
+  const [id, setId] = useState("");
+  const [expense, setExpense] = useState("");
+  const [income, setIncome] = useState("");
+  let remaining = income - expense
+ 
+
+
+
+  // Retrieve the information from AsyncStorage
+  useEffect(() => {
+    AsyncStorage.getItem("_id")
+      .then((value) => {
+        if (value) {
+          setId(value);
+        }
+      })
+      .catch((error) => {
+        console.error("Error retrieving id:", error);
+      });
+  }, []);
+  useEffect(() => {
+    // Make the API call within a useEffect hook
+    axios
+      .get(`http://10.0.2.2:5000/api/wallet/getUserWallet/${id}`)
+
+      .then((res) => {
+        const wallet = res.data.data.wallet;
+        if (wallet) {
+          setExpense(wallet.expense);
+          setIncome(wallet.income);
+        }
+      })
+
+      .catch((error) => {
+        console.error("Error fetching data: ", error.message);
+      });
+  }, [id]);
+
   return (
     <View style={styles.headerSummary}>
       <View style={styles.section}>
         <Text style={styles.headerSummaryTitle}>المتبقي</Text>
-        <Text style={styles.remaining}>600 $</Text>
+        <Text style={styles.remaining}>{remaining}</Text>
       </View>
       <View style={styles.section}>
         <Text style={styles.headerSummaryTitle}>الدخل</Text>
-        <Text style={styles.income}>1000 $</Text>
+        <Text style={styles.income}>{income}</Text>
       </View>
       <View style={styles.section}>
         <Text style={styles.headerSummaryTitle}>المصاريف</Text>
-        <Text style={styles.expenses}>400 $</Text>
+        <Text style={styles.expenses}>{expense}</Text>
       </View>
       <View style={styles.section}>
         <View style={styles.monthTitle}>

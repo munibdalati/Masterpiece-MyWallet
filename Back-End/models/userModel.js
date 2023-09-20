@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const Wallet = require("./walletModel"); 
 
 //creating the schema (how data is arranged in the database)
 const UserSchema = new mongoose.Schema(
@@ -35,12 +35,14 @@ const UserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+
 // -----------------Sign up method -----------------
 UserSchema.statics.addUser = async function (
   username,
   email,
   password,
-  userType ="user"
+  userType = "user"
 ) {
   // validation
   if (!username || !email || !password) {
@@ -84,6 +86,7 @@ UserSchema.statics.login = async function (email, password, isAdmin = false) {
 
   return user;
 };
+
 
 
 // ----------------- save -----------------

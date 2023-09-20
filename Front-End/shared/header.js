@@ -4,14 +4,44 @@ import { Feather } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
-export default function Header({
-  title,
-  showTotal,
-  loggedIn,
-  homeIcon,
-}) {
+export default function Header({ title, showTotal, loggedIn, homeIcon }) {
   const navigation = useNavigation();
+  const [balance, setBalance] = useState("");
+ 
+
+  const [id, setId] = useState("");
+
+  // Retrieve the information from AsyncStorage
+  useEffect(() => {
+    AsyncStorage.getItem("_id")
+      .then((value) => {
+        if (value) {
+          setId(value);
+        }
+      })
+      .catch((error) => {
+        console.error("Error retrieving id:", error);
+      });
+  }, []);
+  useEffect(() => {
+    // Make the API call within a useEffect hook
+    axios
+      .get(`http://10.0.2.2:5000/api/wallet/getUserWallet/${id}`)
+
+      .then((res) => {
+        const wallet = res.data.data.wallet;
+        if (wallet) {
+          setBalance(wallet.balance);
+        }
+      })
+
+      .catch((error) => {
+        console.error("Error fetching data: ", error.message);
+      });
+  }, [id]);
 
   return (
     <View style={styles.header}>
@@ -40,10 +70,12 @@ export default function Header({
           <Text style={styles.headerText}>محفظتي</Text>
           <Entypo name="pie-chart" size={24} color="white" />
         </View>
-      ) : <Text style={styles.headerText}>محفظتي</Text>}
+      ) : (
+        <Text style={styles.headerText}>محفظتي</Text>
+      )}
 
       <View style={styles.headerSecondRow}>
-        {showTotal && <Text style={styles.total}>10,000 $</Text>}
+        {showTotal && <Text style={styles.total}>{balance}</Text>}
         <Text style={styles.headerSecondText}>{title}</Text>
       </View>
     </View>

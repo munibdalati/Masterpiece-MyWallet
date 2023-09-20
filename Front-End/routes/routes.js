@@ -8,12 +8,13 @@ import SignUp from "../screens/signUp";
 import SignIn from "../screens/signIn";
 import Personal from "../screens/personal";
 
+
 const Stack = createNativeStackNavigator();
 
 const Routes = () => {
   return (
     <Stack.Navigator
-      initialRouteName="SignUp" 
+      initialRouteName="SignIn" 
     >
       <Stack.Screen
         name="SignUp"
@@ -51,6 +52,7 @@ const Routes = () => {
         component={Personal}
         options={{ headerShown: false }}
       />
+
     </Stack.Navigator>
   );
 };

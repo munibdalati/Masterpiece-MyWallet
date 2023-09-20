@@ -1,41 +1,58 @@
 const crypto = require("crypto");
 const User = require("../models/userModel");
+const Wallet = require("../models/walletModel");
 const ErrorResponse = require("../utils/errorResponse");
 const sendEmail = require("../utils/sendEmail");
 const jwt = require("jsonwebtoken");
 
-
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.JWT_SECRET, { expiresIn: "3d" });
 };
-
+// --------------------get all users --------------------
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    const wallets = await Wallet.find();
+    res.status(200).json({
+      status: "success",
+      results: users.length,
+      data: {
+        users,
+        wallets
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: "fail",
+      message: error,
+    });
+  }
+};
 //-------------register route----------------------
 exports.register = async (req, res) => {
-  console.log("Received registration request with data:");
-  console.log("Username:", req.body.username);
-  console.log("Email:", req.body.email);
-  console.log("Password:", req.body.password);
-
   const { username, email, password } = req.body;
   try {
+
+    // Step 1: Register the user
     const user = await User.addUser(username, email, password);
-    //adding token to let token take a value
-    // const token = user.getSignedToken();
+
+    // Step 2: Create a wallet for the registered user
+    const wallet = await Wallet.createDefaultWallet(user._id);
+
+    // Step 3: Generate a token
     const token = createToken(user._id);
 
-
-    //1-Send the response with the username and token
+    // Step 4: Send the response with user data, wallet, and token
     res.status(200).json({
       status: "success",
       data: {
         user,
+        wallet,
       },
       token: token,
     });
-    // sendToken(user, 201, res);
   } catch (error) {
     res.status(400).json({ status: "fail", error: error.message });
-    // next(error);
   }
 };
 
@@ -104,6 +121,40 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+//--------------delete route----------------------
+exports.deleteUser = async (req, res) => {
+  const id = req.params.id;
+  try {
+    // Find the user by ID
+    const user = await User.findById({ _id: id });
+
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+
+    // Find the associated wallet by userId and delete it using deleteOne
+    await Wallet.deleteOne({ userId: user._id });
+
+    // Delete the user
+    await User.findByIdAndDelete(
+      { _id: id },)
+    res.status(200).json({
+      status: "success",
+      data: {
+        user,
+      },
+    });
+  } catch (error) {
+    console.error("Delete error:", error); // Add this line for debugging
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
 
 
 //---------------forgotpassword route--------------

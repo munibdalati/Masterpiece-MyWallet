@@ -83,6 +83,7 @@ export default function Personal() {
 
   const saveUpdatedUsername = async () => {
     try {
+
       const url = `http://10.0.2.2:5000/api/user/update/${id}`;
       const updatedData = {
         username,
