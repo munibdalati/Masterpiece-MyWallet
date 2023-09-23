@@ -84,7 +84,7 @@ export default function Personal() {
   const saveUpdatedUsername = async () => {
     try {
 
-      const url = `http://10.0.2.2:5000/api/user/update/${id}`;
+      const url = `http://10.0.2.2:8000/api/user/update/${id}`;
       const updatedData = {
         username,
       };
@@ -104,13 +104,13 @@ export default function Personal() {
       setError(error.response?.data?.error || "An error occurred");
       setTimeout(() => {
         setError("");
-      }, 5000);
+      }, 8000);
     }
   };
 
   const saveUpdatedEmail = async () => {
     try {
-      const url = `http://10.0.2.2:5000/api/user/update/${id}`;
+      const url = `http://10.0.2.2:8000/api/user/update/${id}`;
       const updatedData = {
         email,
       };
@@ -130,13 +130,13 @@ export default function Personal() {
       setError(error.response?.data?.error || "An error occurred");
       setTimeout(() => {
         setError("");
-      }, 5000);
+      }, 8000);
     }
   };
 
   const saveUpdatedPassword = async () => {
     try {
-      const url = `http://10.0.2.2:5000/api/user/update/${id}`;
+      const url = `http://10.0.2.2:8000/api/user/update/${id}`;
       const updatedData = {
         password,
       };
@@ -156,7 +156,7 @@ export default function Personal() {
       setError(error.response?.data?.error || "An error occurred");
       setTimeout(() => {
         setError("");
-      }, 5000);
+      }, 8000);
     }
   };
 

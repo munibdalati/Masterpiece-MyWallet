@@ -17,19 +17,66 @@ import { globalStyles } from "../../styles/global";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { FontAwesome5 } from "@expo/vector-icons";
 
-// Define a custom component for the dropdown arrow icon
-function CustomDropdownArrow() {
-  return (
-    <MaterialCommunityIcons
-      name="chevron-down"
-      size={24}
-      color="white"
-    />
-  );
-}
+
+const validationSchema = Yup.object({
+  cashCard: Yup.string().required("طريقة الدفع مطلوبة"),
+  currency: Yup.string().required("العملة مطلوبة"),
+  category: Yup.string().required("فئة المصروف مطلوبة"),
+  value: Yup.number().required("القيمة مطلوبة").min(0, "القيمة يجب أن تكون أكبر من صفر"),
+});
+
 
 export default function AmountEntryExpense() {
+  // Define state variables for form inputs
+
+  const [isFocusCurrency, setIsFocusCurrency] = useState(false);
+
+  const [isFocusCashCard, setIsFocusCashCard] = useState(false);
+  const [isFocusCategory, setIsFocusCategory] = useState(false);
+
+  const [id, setId] = useState("");
+  const [error, setError] = useState("");
+
+  const formik = useFormik({
+    initialValues: {
+      cashCard: "",
+      currency: "",
+      category: "",
+      value: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      handleSubmit(values);
+    },
+  });
+
+
+
+  // Define state variables for date picker
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState("date");
+  const [show, setShow] = useState(false);
+  const [text, setText] = useState("");
+
+
+
+  // Retrieve the information from AsyncStorage
+  useEffect(() => {
+    AsyncStorage.getItem("_id")
+      .then((value) => {
+        if (value) {
+          setId(value);
+        }
+      })
+      .catch((error) => {
+        console.error("Error retrieving id:", error);
+      });
+  }, []);
+
   // Define icons for cash and credit card
   const cashIcon = (
     <MaterialCommunityIcons name="cash" size={24} color="black" />
@@ -37,9 +84,16 @@ export default function AmountEntryExpense() {
   const creditCardIcon = (
     <Entypo name="credit-card" size={20} color="black" />
   );
-
-  // Get the navigation object from the navigation stack
-  const navigation = useNavigation();
+  // Define a custom component for the dropdown arrow icon
+  function CustomDropdownArrow() {
+    return (
+      <MaterialCommunityIcons
+        name="chevron-down"
+        size={24}
+        color="white"
+      />
+    );
+  }
 
   // Define dropdown data for payment method, currency, and category
   const data = [
@@ -54,46 +108,24 @@ export default function AmountEntryExpense() {
   ];
 
   const categoryData = [
-    { label: "أجار", value: "1" },
-    { label: "انترنت", value: "2" },
-    { label: "بنزين", value: "3" },
-    { label: "خضار وفواكه", value: "4" },
-    { label: "فاتورة الجوال", value: "5" },
-    { label: "كهرباء", value: "6" },
-    { label: "ماء", value: "7" },
-    { label: "مطعم", value: "8" },
-    { label: "ملابس", value: "9" },
-    { label: "غاز", value: "10" },
-    { label: "طبيب", value: "11" },
+    { label: "أجار", value: "أجار" },
+    { label: "انترنت", value: "انترنت" },
+    { label: "بنزين", value: "بنزين" },
+    { label: "خضار وفواكه", value: "خضار وفواكه" },
+    { label: "فاتورة الجوال", value: "فاتورة الجوال" },
+    { label: "كهرباء", value: "كهرباء" },
+    { label: "ماء", value: "ماء" },
+    { label: "مطعم", value: "مطعم" },
+    { label: "ملابس", value: "ملابس" },
+    { label: "غاز", value: "غاز" },
+    { label: "طبيب", value: "طبيب" },
   ];
 
-  // Define state variables for form inputs
-  const [currency, setCurrency] = useState(null);
-  const [isFocusCurrency, setIsFocusCurrency] = useState(false);
-  const [category, setCategory] = useState(null);
-  const [cashCard, setCashCard] = useState(null);
-  const [isFocusCashCard, setIsFocusCashCard] = useState(false);
-  const [isFocusCategory, setIsFocusCategory] = useState(false);
-  const [value, setValue] = useState("");
-  const [id, setId] = useState("");
 
-  // Define state variables for date picker
-  const [date, setDate] = useState(new Date());
-  const [mode, setMode] = useState("date");
-  const [show, setShow] = useState(false);
-  const [text, setText] = useState("");
-
-  const [error, setError] = useState("");
-
-  // Handle date change in the date picker
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(Platform.OS === "ios"); // Hide the DateTimePicker on iOS
-    setDate(currentDate);
-
-    // Format the selected date and set it as text
-    let tempDate = new Date(currentDate);
-    let daysOfWeek = [
+  // Define a function to format the selected date
+  const formatSelectedDate = (selectedDate) => {
+    const tempDate = new Date(selectedDate);
+    const daysOfWeek = [
       "الأحد",
       "الاثنين",
       "الثلاثاء",
@@ -102,17 +134,29 @@ export default function AmountEntryExpense() {
       "الجمعة",
       "السبت",
     ];
-    let dayOfWeek = daysOfWeek[tempDate.getDay()];
-    let formattedDate =
+    const dayOfWeek = daysOfWeek[tempDate.getDay()];
+    return (
       dayOfWeek +
       " " +
       tempDate.getDate() +
       " / " +
       (tempDate.getMonth() + 1) +
       " / " +
-      tempDate.getFullYear();
-    setText(formattedDate);
+      tempDate.getFullYear()
+    );
   };
+
+
+
+
+  // Handle date change in the date picker
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === "ios"); // Hide the DateTimePicker on iOS
+    setDate(currentDate);
+    setText(formatSelectedDate(currentDate));
+  };
+
 
   // Show the date picker with the specified mode
   const showMode = (currentMode) => {
@@ -124,42 +168,54 @@ export default function AmountEntryExpense() {
   const handleConfirm = () => {
     setShow(false);
   };
+  const navigation = useNavigation(); // Use useNavigation here
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based, so we add 1
+  const year = date.getFullYear();
+  const formattedDate = `${day}/${month}/${year}`;
+
 
   // Handle expense submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
+  const handleSubmit = async (values) => {
+    console.log("Request Payload:", {
+      category: values.category,
+      value: values.value,
+      date: formattedDate,
+      cashCard: values.cashCard,
+      currency: values.currency,
+      id: id
+    });
     try {
       const response = await axios.post(
-        `http://10.0.2.2:5000/api/wallet/addTransaction/${id}`,
+        `http://10.0.2.2:8000/api/wallet/addTransaction/${id}`,
         {
-          category,
-          value,
-          date,
-          cashCard,
-          currency,
+          type: "مصروف",
+          category: values.category,
+          value: parseFloat(values.value),
+          date: formattedDate,
+          cashCard: values.cashCard,
+          currency: values.currency,
         },
-        config
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       console.log(response.data.token);
       console.log(response.data);
 
-      navigate("/HomePage");
+      navigation.navigate("HomePage");
     } catch (error) {
       console.error("Error adding expense:", error);
       setError(error.response?.data?.error || "An error occurred");
       setTimeout(() => {
         setError("");
-      }, 5000);
+      }, 8000);
     }
   };
+
 
   // Define a function to render dropdown items
   const renderItem = (item) => {
@@ -176,18 +232,7 @@ export default function AmountEntryExpense() {
     setValue("");
   };
 
-  // Retrieve the information from AsyncStorage
-  useEffect(() => {
-    AsyncStorage.getItem("_id")
-      .then((value) => {
-        if (value) {
-          setId(value);
-        }
-      })
-      .catch((error) => {
-        console.error("Error retrieving id:", error);
-      });
-  }, []);
+
 
 
   return (
@@ -234,14 +279,17 @@ export default function AmountEntryExpense() {
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocusCashCard ? "طريقة الدفع" : "..."}
-                value={cashCard}
+                value={formik.values.cashCard}
                 onFocus={() => setIsFocusCashCard(true)}
-                onBlur={() => setIsFocusCashCard(false)}
+                onBlur={() => {
+                  setIsFocusCashCard(false);
+                  formik.setFieldTouched("cashCard", true);
+                }}
                 onChange={(item) => {
-                  setCashCard(item.value);
+                  formik.setFieldValue("cashCard", item.value);
                   setIsFocusCashCard(false);
                 }}
-                renderItem={renderItem} // Custom rendering of dropdown items
+                renderItem={renderItem}
               />
               <View style={styles.customDropdownArrow}>
                 <CustomDropdownArrow />
@@ -259,14 +307,17 @@ export default function AmountEntryExpense() {
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocusCurrency ? " العملة" : "..."}
-                value={currency}
+                value={formik.values.currency}
                 onFocus={() => setIsFocusCurrency(true)}
-                onBlur={() => setIsFocusCurrency(false)}
+                onBlur={() => {
+                  setIsFocusCurrency(false);
+                  formik.setFieldTouched("currency", true);
+                }}
                 onChange={(item) => {
-                  setCurrency(item.value);
+                  formik.setFieldValue("currency", item.value);
                   setIsFocusCurrency(false);
                 }}
-                renderItem={renderItem} // Custom rendering of dropdown items
+                renderItem={renderItem}
               />
               <View style={styles.customDropdownArrow}>
                 <CustomDropdownArrow />
@@ -284,15 +335,17 @@ export default function AmountEntryExpense() {
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocusCategory ? " فئة المصروف" : "..."}
-                value={category}
+                value={formik.values.category}
                 onFocus={() => setIsFocusCategory(true)}
-                onBlur={() => setIsFocusCategory(false)}
+                onBlur={() => {
+                  setIsFocusCategory(false);
+                  formik.setFieldTouched("category", true);
+                }}
                 onChange={(item) => {
-                  setCategory(item.value);
+                  formik.setFieldValue("category", item.value);
                   setIsFocusCategory(false);
                 }}
-                renderItem={renderItem} // Custom rendering of dropdown items
-              />
+                np />
               <View style={styles.customDropdownArrow}>
                 <CustomDropdownArrow />
               </View>
@@ -302,23 +355,30 @@ export default function AmountEntryExpense() {
             <TextInput
               style={styles.input}
               placeholder="0"
-              placeholderTextColor="white" // Set the placeholder text color to white
+              placeholderTextColor="white"
               keyboardType="numeric"
-              value={value}
-              onChangeText={(text) => setValue(text)} // Update the state when text changes
+              value={formik.values.value}
+              onChangeText={formik.handleChange("value")}
+              onBlur={formik.handleBlur("value")}
             />
           </View>
           <View style={styles.TextInputContainer}>
-            <TouchableOpacity style={styles.delete} onPress={clearTextInput}>
+            <TouchableOpacity style={styles.delete} onPress={formik.resetForm}>
               <Feather name="delete" size={24} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={handleSubmit} // Call the expenseSubmit function when the button is pressed
-            >
-              <Text style={styles.submitButtonText}>Submit</Text>
-            </TouchableOpacity>
           </View>
+        </View>
+        {/* button */}
+        <View>
+          <TouchableOpacity onPress={formik.handleSubmit}>
+            <Text style={styles.AddExpenseBtnText}>
+              <FontAwesome5
+                name="check"
+                size={24}
+                color={globalStyles.primaryColor}
+              />
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -434,7 +494,15 @@ const styles = StyleSheet.create({
     color: "white",
   },
   confirmBtnContainer: {
-    justifyContent: "center", // Center vertically
-    alignItems: "center", // Center horizontally
+    justifyContent: "center", 
+    alignItems: "center", 
   },
+  AddExpenseBtnText:{
+    textAlign: "center",
+    borderColor:globalStyles.primaryColor,
+    borderWidth: 1,
+    borderRadius: 8,
+    marginHorizontal:150,
+    paddingVertical:10
+  }
 });

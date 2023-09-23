@@ -50,7 +50,7 @@ export default function SignUp() {
   }, []);
 
   const registerHandler = async (values) => {
-    const url = "http://10.0.2.2:5000/api/user/register";
+    const url = "http://10.0.2.2:8000/api/user/register";
     const { username, email, password, confirmPassword } = values;
 
     const config = {
@@ -61,7 +61,7 @@ export default function SignUp() {
     if (password !== confirmPassword) {
       setTimeout(() => {
         setError("");
-      }, 5000);
+      }, 8000);
       return setError("كلمتا السر غير متطابقتان");
     }
     try {
@@ -82,7 +82,7 @@ export default function SignUp() {
       setError(error.response.data.error || "An error occurred");
       setTimeout(() => {
         setError("");
-      }, 5000);
+      }, 8000);
     }
   };
 

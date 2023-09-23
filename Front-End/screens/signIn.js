@@ -43,7 +43,7 @@ export default function SignIn() {
   }, []);
 
   const loginHandler = async (values) => {
-    const url = "http://10.0.2.2:5000/api/user/login";
+    const url = "http://10.0.2.2:8000/api/user/login";
     const { email, password } = values;
     const config = {
       headers: {
@@ -74,7 +74,7 @@ export default function SignIn() {
       setError(error.response.data.error || "An error occurred");
       setTimeout(() => {
         setError("");
-      }, 5000);
+      }, 8000);
     }
   };
 

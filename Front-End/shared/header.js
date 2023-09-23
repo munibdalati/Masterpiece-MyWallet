@@ -29,7 +29,7 @@ export default function Header({ title, showTotal, loggedIn, homeIcon }) {
   useEffect(() => {
     // Make the API call within a useEffect hook
     axios
-      .get(`http://10.0.2.2:5000/api/wallet/getUserWallet/${id}`)
+      .get(`http://10.0.2.2:8000/api/wallet/getUserWallet/${id}`)
 
       .then((res) => {
         const wallet = res.data.data.wallet;

@@ -4,7 +4,7 @@ import { globalStyles } from "../styles/global";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { useIsFocused } from "@react-navigation/native"; // Import useIsFocused
 
 export default function HeaderSummary() {
   const [id, setId] = useState("");
@@ -12,7 +12,7 @@ export default function HeaderSummary() {
   const [income, setIncome] = useState("");
   let remaining = income - expense
  
-
+  const isFocused = useIsFocused(); // Track if the screen is focused
 
 
   // Retrieve the information from AsyncStorage
@@ -28,9 +28,10 @@ export default function HeaderSummary() {
       });
   }, []);
   useEffect(() => {
-    // Make the API call within a useEffect hook
+    if(isFocused) {
+    // Make the API call within a useEffect hookf
     axios
-      .get(`http://10.0.2.2:5000/api/wallet/getUserWallet/${id}`)
+      .get(`http://10.0.2.2:8000/api/wallet/getUserWallet/${id}`)
 
       .then((res) => {
         const wallet = res.data.data.wallet;
@@ -42,8 +43,8 @@ export default function HeaderSummary() {
 
       .catch((error) => {
         console.error("Error fetching data: ", error.message);
-      });
-  }, [id]);
+      });}
+  }, [id, isFocused]);
 
   return (
     <View style={styles.headerSummary}>

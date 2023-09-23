@@ -5,10 +5,13 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native"; // Import useIsFocused
+
 
 export default function DaySummary() {
   const [id, setId] = useState("");
   const [transactions, setTransactions] = useState([]);
+  const isFocused = useIsFocused(); // Track if the screen is focused
 
   // Retrieve the information from AsyncStorage
   useEffect(() => {
@@ -25,8 +28,9 @@ export default function DaySummary() {
 
   useEffect(() => {
     // Make the API call within a useEffect hook
+    if(isFocused) {
     axios
-      .get(`http://10.0.2.2:5000/api/wallet/getUserWallet/${id}`)
+      .get(`http://10.0.2.2:8000/api/wallet/getUserWallet/${id}`)
       .then((res) => {
         const transactionsData = res.data.data.wallet.transactions;
         if (transactionsData) {
@@ -70,8 +74,8 @@ export default function DaySummary() {
       })
       .catch((error) => {
         console.error("Error fetching data: ", error.message);
-      });
-  }, [id]);
+      });}
+  }, [id, isFocused]);
 
   // Function to determine text color based on transaction type
   const getTextStyle = (type) => {
@@ -96,7 +100,7 @@ export default function DaySummary() {
               <Text style={styles.dailyExpense}>{day.totalExpenses}</Text>
             </View>
 
-            <Text style={styles.date}>{day.date}</Text>
+            <Text style={styles.date}>{day.date.split("/").reverse().join("-")}</Text>
           </View>
           {day.transactions.map((transaction, subIndex) => (
             <View style={styles.dayCategory} key={subIndex}>

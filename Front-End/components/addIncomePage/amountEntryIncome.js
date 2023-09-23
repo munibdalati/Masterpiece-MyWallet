@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,51 +14,204 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { globalStyles } from "../../styles/global";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { FontAwesome5 } from "@expo/vector-icons";
 
-function CustomDropdownArrow() {
-  return (
-    <MaterialCommunityIcons
-      name="chevron-down"
-      size={24}
-      color="white" // Set the color to white
-    />
-  );
-}
 
-export default function AmountEntry() {
+const validationSchema = Yup.object({
+  cashCard: Yup.string().required("طريقة الدفع مطلوبة"),
+  currency: Yup.string().required("العملة مطلوبة"),
+  category: Yup.string().required("فئة المصروف مطلوبة"),
+  value: Yup.number().required("القيمة مطلوبة").min(0, "القيمة يجب أن تكون أكبر من صفر"),
+});
+
+
+export default function AmountEntryExpense() {
+  // Define state variables for form inputs
+
+  const [isFocusCurrency, setIsFocusCurrency] = useState(false);
+
+  const [isFocusCashCard, setIsFocusCashCard] = useState(false);
+  const [isFocusCategory, setIsFocusCategory] = useState(false);
+
+  const [id, setId] = useState("");
+  const [error, setError] = useState("");
+
+  const formik = useFormik({
+    initialValues: {
+      cashCard: "",
+      currency: "",
+      category: "",
+      value: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      handleSubmit(values);
+    },
+  });
+
+
+
+  // Define state variables for date picker
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState("date");
+  const [show, setShow] = useState(false);
+  const [text, setText] = useState("");
+
+
+
+  // Retrieve the information from AsyncStorage
+  useEffect(() => {
+    AsyncStorage.getItem("_id")
+      .then((value) => {
+        if (value) {
+          setId(value);
+        }
+      })
+      .catch((error) => {
+        console.error("Error retrieving id:", error);
+      });
+  }, []);
+
+  // Define icons for cash and credit card
   const cashIcon = (
     <MaterialCommunityIcons name="cash" size={24} color="black" />
   );
-  const creditCardIcon = <Entypo name="credit-card" size={20} color="black" />;
+  const creditCardIcon = (
+    <Entypo name="credit-card" size={20} color="black" />
+  );
+  // Define a custom component for the dropdown arrow icon
+  function CustomDropdownArrow() {
+    return (
+      <MaterialCommunityIcons
+        name="chevron-down"
+        size={24}
+        color="white"
+      />
+    );
+  }
 
-  const navigation = useNavigation();
+  // Define dropdown data for payment method, currency, and category
   const data = [
-    { label: "كاش", value: "1", icon: cashIcon },
-    { label: "بطاقة ائتمانية", value: "2", icon: creditCardIcon },
-  ];
-  const currency = [
-    { label: "USD", value: "1" },
-    { label: "JOD", value: "2" },
-    { label: "EUR", value: "3" },
+    { label: "كاش", value: "كاش", icon: cashIcon },
+    { label: "بطاقة ائتمانية", value: "بطاقة ائتمانية", icon: creditCardIcon },
   ];
 
-  const category = [
-    { label: "راتب", value: "1"},
-    { label: "عمل حر", value: "2"},
-    { label: "عيدية", value: "3"},
-    { label: "استثمار", value: "4"},
+  const currencyData = [
+    { label: "USD", value: "USD" },
+    { label: "JOD", value: "JOD" },
+    { label: "EUR", value: "EUR" },
   ];
 
-  const [valueType, setValueType] = useState(null);
-  const [isFocusType, setIsFocusType] = useState(false);
-  const [currencyValue, setCurrencyValue] = useState(null);
-  const [isFocusCurrency, setIsFocusCurrency] = useState(false);
-  const [categoryValue, setCategoryValue] = useState(null);
-  const [isFocusCategory, setIsFocusCategory] = useState(false);
-  const [textInputValue, setTextInputValue] = useState("");
+  const categoryData = [
+    { label: "راتب", value: "راتب" },
+    { label: "أرباح", value: "أرباح" },
+    { label: "استثمار", value: "استثمار" },
+    { label: "دخل إضافي", value: "دخل إضافي" },
+
+  ];
+
+
+  // Define a function to format the selected date
+  const formatSelectedDate = (selectedDate) => {
+    const tempDate = new Date(selectedDate);
+    const daysOfWeek = [
+      "الأحد",
+      "الاثنين",
+      "الثلاثاء",
+      "الأربعاء",
+      "الخميس",
+      "الجمعة",
+      "السبت",
+    ];
+    const dayOfWeek = daysOfWeek[tempDate.getDay()];
+    return (
+      dayOfWeek +
+      " " +
+      tempDate.getDate() +
+      " / " +
+      (tempDate.getMonth() + 1) +
+      " / " +
+      tempDate.getFullYear()
+    );
+  };
 
 
 
+
+  // Handle date change in the date picker
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === "ios"); // Hide the DateTimePicker on iOS
+    setDate(currentDate);
+    setText(formatSelectedDate(currentDate));
+  };
+
+
+  // Show the date picker with the specified mode
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  // Handle date picker confirm button press
+  const handleConfirm = () => {
+    setShow(false);
+  };
+  const navigation = useNavigation(); // Use useNavigation here
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based, so we add 1
+  const year = date.getFullYear();
+  const formattedDate = `${day}/${month}/${year}`;
+
+
+  // Handle expense submission
+  const handleSubmit = async (values) => {
+    console.log("Request Payload:", {
+      category: values.category,
+      value: values.value,
+      date: formattedDate,
+      cashCard: values.cashCard,
+      currency: values.currency,
+      id: id
+    });
+    try {
+      const response = await axios.post(
+        `http://10.0.2.2:8000/api/wallet/addTransaction/${id}`,
+        {
+          type: "دخل",
+          category: values.category,
+          value: parseFloat(values.value),
+          date: formattedDate,
+          cashCard: values.cashCard,
+          currency: values.currency,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(response.data.token);
+      console.log(response.data);
+
+      navigation.navigate("HomePage");
+    } catch (error) {
+      console.error("Error adding expense:", error);
+      setError(error.response?.data?.error || "An error occurred");
+      setTimeout(() => {
+        setError("");
+      }, 8000);
+    }
+  };
+
+
+  // Define a function to render dropdown items
   const renderItem = (item) => {
     return (
       <View style={styles.dropdownItem}>
@@ -70,102 +223,155 @@ export default function AmountEntry() {
 
   // Function to clear the TextInput value
   const clearTextInput = () => {
-    setTextInputValue("");
+    setValue("");
   };
+
+
+
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.amountEntry}>
-        <View style={styles.dropDownContainer}>
-          {/* طريقة القبض */}
-          <View style={styles.dropdownWrapper}>
-            <Dropdown
-              style={[styles.dropdown, isFocusType]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              data={data}
-              maxHeight={100}
-              labelField="label"
-              valueField="value"
-              placeholder={!isFocusType ? "طريقة القبض" : "..."}
-              value={valueType}
-              onFocus={() => setIsFocusType(true)}
-              onBlur={() => setIsFocusType(false)}
-              onChange={(item) => {
-                setValueType(item.value);
-                setIsFocusType(false);
-              }}
-              renderItem={renderItem} // Custom rendering of dropdown items
-            />
-            <View style={styles.customDropdownArrow}>
-              <CustomDropdownArrow />
+      <View>
+        <View style={styles.dateSelection}>
+          <Text style={styles.dateText}>{text}</Text>
+          <TouchableOpacity
+            onPress={() => showMode("date")}
+            style={styles.selectionBtn}
+          >
+            <Text style={styles.btnText}>اختر يوم الدخل</Text>
+          </TouchableOpacity>
+
+          {show && (
+            <View style={styles.confirmBtnContainer}>
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={date}
+                mode={mode}
+                display="spinner"
+                onChange={onChange}
+              />
+              <TouchableOpacity
+                onPress={handleConfirm}
+                style={styles.selectionBtn}
+              >
+                <Text style={styles.btnText}>تأكيد</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+        <View style={styles.amountEntry}>
+          <View style={styles.dropDownContainer}>
+            {/* طريقة الدفع */}
+            <View style={styles.dropdownWrapper}>
+              <Dropdown
+                style={[styles.dropdown, isFocusCashCard]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={data}
+                maxHeight={100}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocusCashCard ? "طريقة الدفع" : "..."}
+                value={formik.values.cashCard}
+                onFocus={() => setIsFocusCashCard(true)}
+                onBlur={() => {
+                  setIsFocusCashCard(false);
+                  formik.setFieldTouched("cashCard", true);
+                }}
+                onChange={(item) => {
+                  formik.setFieldValue("cashCard", item.value);
+                  setIsFocusCashCard(false);
+                }}
+                renderItem={renderItem}
+              />
+              <View style={styles.customDropdownArrow}>
+                <CustomDropdownArrow />
+              </View>
+            </View>
+            {/* العملة */}
+            <View style={styles.dropdownWrapper}>
+              <Dropdown
+                style={[styles.dropdown, isFocusCurrency]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={currencyData}
+                maxHeight={150}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocusCurrency ? " العملة" : "..."}
+                value={formik.values.currency}
+                onFocus={() => setIsFocusCurrency(true)}
+                onBlur={() => {
+                  setIsFocusCurrency(false);
+                  formik.setFieldTouched("currency", true);
+                }}
+                onChange={(item) => {
+                  formik.setFieldValue("currency", item.value);
+                  setIsFocusCurrency(false);
+                }}
+                renderItem={renderItem}
+              />
+              <View style={styles.customDropdownArrow}>
+                <CustomDropdownArrow />
+              </View>
+            </View>
+            {/* فئة الدخل */}
+            <View style={styles.dropdownWrapper}>
+              <Dropdown
+                style={[styles.dropdown, isFocusCategory]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                data={categoryData}
+                maxHeight={150}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocusCategory ? " فئة الدخل" : "..."}
+                value={formik.values.category}
+                onFocus={() => setIsFocusCategory(true)}
+                onBlur={() => {
+                  setIsFocusCategory(false);
+                  formik.setFieldTouched("category", true);
+                }}
+                onChange={(item) => {
+                  formik.setFieldValue("category", item.value);
+                  setIsFocusCategory(false);
+                }}
+                np />
+              <View style={styles.customDropdownArrow}>
+                <CustomDropdownArrow />
+              </View>
             </View>
           </View>
-          {/* العملة */}
-          <View style={styles.dropdownWrapper}>
-            <Dropdown
-              style={[styles.dropdown, isFocusCurrency]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              data={currency}
-              maxHeight={150}
-              labelField="label"
-              valueField="value"
-              placeholder={!isFocusCurrency ? " العملة" : "..."}
-              value={currencyValue}
-              onFocus={() => setIsFocusCurrency(true)}
-              onBlur={() => setIsFocusCurrency(false)}
-              onChange={(item) => {
-                setCurrencyValue(item.value);
-                setIsFocusCurrency(false);
-              }}
-              renderItem={renderItem} // Custom rendering of dropdown items
+          <View style={styles.TextInputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="0"
+              placeholderTextColor="white"
+              keyboardType="numeric"
+              value={formik.values.value}
+              onChangeText={formik.handleChange("value")}
+              onBlur={formik.handleBlur("value")}
             />
-            <View style={styles.customDropdownArrow}>
-              <CustomDropdownArrow />
-            </View>
           </View>
-          {/* فئة الدخل */}
-          <View style={styles.dropdownWrapper}>
-            <Dropdown
-              style={[styles.dropdown, isFocusCategory]}
-              placeholderStyle={styles.placeholderStyle}
-              selectedTextStyle={styles.selectedTextStyle}
-              inputSearchStyle={styles.inputSearchStyle}
-              data={category}
-              maxHeight={150}
-              labelField="label"
-              valueField="value"
-              placeholder={!isFocusCategory ? " فئة الدخل" : "..."}
-              value={categoryValue}
-              onFocus={() => setIsFocusCategory(true)}
-              onBlur={() => setIsFocusCategory(false)}
-              onChange={(item) => {
-                setCategoryValue(item.value);
-                setIsFocusCategory(false);
-              }}
-              renderItem={renderItem} // Custom rendering of dropdown items
-            />
-            <View style={styles.customDropdownArrow}>
-              <CustomDropdownArrow />
-            </View>
+          <View style={styles.TextInputContainer}>
+            <TouchableOpacity style={styles.delete} onPress={formik.resetForm}>
+              <Feather name="delete" size={24} color="white" />
+            </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.TextInputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="0"
-            placeholderTextColor="white" // Set the placeholder text color to white
-            keyboardType="numeric"
-            value={textInputValue}
-            onChangeText={(text) => setTextInputValue(text)} // Update the state when text changes
-          />
-        </View>
-        <View style={styles.TextInputContainer}>
-          <TouchableOpacity style={styles.delete} onPress={clearTextInput}>
-            <Feather name="delete" size={24} color="white" />
+        {/* button */}
+        <View>
+          <TouchableOpacity onPress={formik.handleSubmit}>
+            <Text style={styles.AddExpenseBtnText}>
+              <FontAwesome5
+                name="check"
+                size={24}
+                color={globalStyles.primaryColor}
+              />
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -254,4 +460,43 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -12 }],
     zIndex: 1,
   },
+
+  dateSelection: {
+    paddingVertical: 20,
+    justifyContent: "center", // Center vertically
+    alignItems: "center", // Center horizontally
+  },
+  dateText: {
+    textAlign: "center",
+    color: globalStyles.primaryColor,
+    fontSize: 16,
+  },
+  selectionBtn: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    marginTop: 10,
+    backgroundColor: globalStyles.primaryColor,
+    borderColor: "white",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    width: 130,
+  },
+  btnText: {
+    color: "white",
+  },
+  confirmBtnContainer: {
+    justifyContent: "center", 
+    alignItems: "center", 
+  },
+  AddExpenseBtnText:{
+    textAlign: "center",
+    borderColor:globalStyles.primaryColor,
+    borderWidth: 1,
+    borderRadius: 8,
+    marginHorizontal:150,
+    paddingVertical:10
+  }
 });
