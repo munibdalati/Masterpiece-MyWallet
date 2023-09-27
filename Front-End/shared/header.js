@@ -86,8 +86,8 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: globalStyles.primaryColor,
     paddingHorizontal: 10,
-    paddingTop: 60,
-    paddingBottom: 30,
+    paddingTop: 30,
+    paddingBottom: 15,
     alignItems: "center", // Center the content horizontally
   },
   headerFirstRow: {

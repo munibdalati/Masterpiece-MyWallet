@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
   plusMinus: {
     backgroundColor: globalStyles.primaryColor,
     paddingHorizontal: 10,
-    paddingBottom: 40,
+    paddingBottom: 20,
     paddingTop: 20,
     display: "flex",
     flexDirection: "row",

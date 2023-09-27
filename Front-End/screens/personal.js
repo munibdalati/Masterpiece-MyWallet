@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 300,
     paddingHorizontal: 30,
-    height: "80%",
+    height: "100%",
     display: "flex",
     flexDirection: "row-reverse",
     justifyContent: "space-between",

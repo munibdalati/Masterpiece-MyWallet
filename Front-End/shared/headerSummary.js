@@ -62,7 +62,7 @@ export default function HeaderSummary() {
       </View>
       <View style={styles.section}>
         <View style={styles.monthTitle}>
-          <MaterialIcons name="keyboard-arrow-down" size={24} color="white" />
+          <MaterialIcons name="keyboard-arrow-down" size={24} color="#000" />
           <Text style={styles.headerSummaryTitle}>الشهر</Text>
         </View>
 
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   headerSummary: {
     backgroundColor: globalStyles.secondaryColor,
     paddingHorizontal: 10,
-    paddingVertical: 30,
+    paddingVertical: 15,
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     color: "white",
   },
   headerSummaryTitle: {
-    color: "white",
+    color: "#000",
     textAlign: "center",
     paddingBottom: 10,
     fontSize: 16,
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   month: {
-    color: "white",
+    color: "#000",
     textAlign: "center",
     fontSize: 16,
   },

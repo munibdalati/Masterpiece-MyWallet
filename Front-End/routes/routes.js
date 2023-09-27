@@ -7,7 +7,7 @@ import Settings from "../screens/settings";
 import SignUp from "../screens/signUp";
 import SignIn from "../screens/signIn";
 import Personal from "../screens/personal";
-
+import Zakat from "../screens/zakat";
 
 const Stack = createNativeStackNavigator();
 
@@ -50,6 +50,11 @@ const Routes = () => {
       <Stack.Screen
         name="Personal"
         component={Personal}
+        options={{ headerShown: false }}
+      />
+            <Stack.Screen
+        name="Zakat"
+        component={Zakat}
         options={{ headerShown: false }}
       />
 
