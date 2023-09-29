@@ -1,0 +1,86 @@
+:root {
+  --primaryColor: #C08261;
+  --secondaryColor: #E2C799;
+  --tertiaryColor: #F2ECBE;
+  --quaternaryColor: #9A3B3B;
+}
+
+.NavTitle, .footerTitle {
+  color: var(--primaryColor)!important;
+  text-decoration: none;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+
+@media screen and (max-width: 770px) {
+  .footer__row{
+    flex-direction: column;
+  }
+
+
+}
+
+.editInputUser{
+  width: 100px;
+}
+.editInputEmail{
+  width: 200px;
+}
+
+.editInputAge{
+  width: 30px;
+}
+
+.editInputGender{
+  width: 60px;
+}
+
+
+
+.centeredContentStyle {
+  text-align: center;
+}
+.btnsContainerStyle {
+  display: flex;
+  align-items: center;
+  margin-top: 8rem;
+  gap: 3rem;
+  justify-content: center;
+}
+
+.Admin__btn {
+  background-color: #f7ebe7;
+  border-color: #ff8947;
+  color: #ff8947;
+  font-size: 40px;
+  padding: 20px 40px;
+}
+.Admin__btn:hover {
+  background-color: #ff8947;
+  color: #f7ebe7;
+}
+
+@media screen and (max-width: 770px) {
+  .btnsContainerStyle {
+    flex-direction: column;
+    margin-top: 5rem;
+    gap: 2rem;
+  }
+  .Admin__btn {
+    font-size: 20px;
+    padding: 12px 24px;
+  }
+}
+
+.btn-orange {
+  background-color: #f7ebe7;
+  border-color: #ff8947;
+  color: #ff8947;
+}
+.btn-orange:hover {
+  background-color: #ff8947;
+  border-color: #ff8947;
+  color: #f7ebe7;
+}
+

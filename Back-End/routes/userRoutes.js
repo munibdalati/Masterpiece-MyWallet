@@ -16,7 +16,7 @@ router.post('/register', userController.register);
 // ----------------- update user route -----------------
 router.put("/update/:id", userController.updateUser);
 
-// ----------------- update user route -----------------
+// ----------------- delete user route -----------------
 router.delete("/delete/:id", userController.deleteUser);
 
 // ----------------- forgot password route -----------------

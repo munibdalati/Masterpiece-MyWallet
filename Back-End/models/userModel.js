@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Wallet = require("./walletModel"); 
+const Wallet = require("./walletModel");
 
 //creating the schema (how data is arranged in the database)
 const UserSchema = new mongoose.Schema(
@@ -26,9 +26,13 @@ const UserSchema = new mongoose.Schema(
       minlength: 6,
       select: false, // we don't want to return password
     },
-    // adding useType to the Schema to show if the user is user or admin
-    userType: {
+    age: {
+      type: Number,
+    },
+    gender: {
       type: String,
+      enum: ["", "male", "female"], // Specify the allowed values
+
     },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
@@ -42,7 +46,8 @@ UserSchema.statics.addUser = async function (
   username,
   email,
   password,
-  userType = "user"
+  age,
+  gender
 ) {
   // validation
   if (!username || !email || !password) {
@@ -55,7 +60,7 @@ UserSchema.statics.addUser = async function (
     throw Error("البريد الإلكتروني المدخل مستخدم سابقًا");
   }
 
-  const user = await this.create({ username, email, password, userType });
+  const user = await this.create({ username, email, password, age, gender });
 
   return user;
 };

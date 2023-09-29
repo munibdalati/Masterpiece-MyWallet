@@ -30,11 +30,11 @@ exports.getAllUsers = async (req, res) => {
 };
 //-------------register route----------------------
 exports.register = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, age, gender } = req.body;
   try {
 
     // Step 1: Register the user
-    const user = await User.addUser(username, email, password);
+    const user = await User.addUser(username, email, password, age, gender);
 
     // Step 2: Create a wallet for the registered user
     const wallet = await Wallet.createDefaultWallet(user._id);
@@ -84,6 +84,8 @@ exports.updateUser = async (req, res) => {
   const { username } = req.body;
   const { email } = req.body;
   const { password } = req.body;
+  const { age } = req.body;
+  const { gender } = req.body;
   const id = req.params.id;
 
   try {
@@ -93,6 +95,8 @@ exports.updateUser = async (req, res) => {
         username: username,
         email: email,
         password: password,
+        age: age,
+        gender: gender,
       },
       {
         new: true,
