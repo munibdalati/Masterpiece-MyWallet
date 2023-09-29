@@ -3,8 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  TextInput,
 } from "react-native";
 import { globalStyles } from "../styles/global";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -45,43 +43,66 @@ export default function Zakat() {
   }, [id]);
 
   // ---------------Zakat calucator---------------
-  let zakatValue = data.balance * 0.025;
-  let goldPriceJOD = 45
+  let goldPriceJOD = 42.69
   let goldGramNisab = 85
-  let JODNisab = goldPriceJOD * goldGramNisab
+  let JODNisab = Math.ceil(goldPriceJOD * goldGramNisab)
+  let zakatValue = Math.ceil(data.balance * 0.025);
+
 
   return (
     <View style={globalStyles.container}>
       <Header title="حاسبة الزكاة" showTotal={false} loggedIn={true} />
       <View style={styles.mainContainer}>
-
-
+        {/* about container */}
         <View style={styles.aboutContainer}>
           <Text style={styles.about}>عن الزكاة: </Text>
-          <Text style={styles.aboutText}>سعر غرام الذهب اليوم : {goldPriceJOD} دينار</Text>
-          <Text style={styles.aboutText}>نصاب المال: {goldGramNisab} غرام من الذهب </Text>
-          <Text style={styles.aboutText}>نصاب المال بالدينار الأردني: {goldPriceJOD} * {goldGramNisab} = {JODNisab} دينار</Text>
+          <Text style={styles.zakatAya}>(وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ وَأَطِيعُوا الرَّسُولَ لَعَلَّكُمْ تُرْحَمُونَ). [سورة النور، آية: 56]</Text>
+        </View>
+        {/* nisab container */}
+
+        <View style={styles.nisapContainer}>
+          <View>
+
+            <Text style={styles.zakatTitle}>سعر غرام الذهب اليوم (بالدينار): </Text>
+            <Text style={styles.zakatTitle}>نصاب المال (غرام من الذهب)</Text>
+            <Text style={styles.zakatTitle}>قيمة النصاب بالدينار</Text>
+          </View>
+          <View>
+            <Text style={styles.zakatText}>{goldPriceJOD}</Text>
+            <Text style={styles.zakatText}>{goldGramNisab}</Text>
+            <Text style={styles.zakatText}>{JODNisab}</Text>
+          </View>
+
 
         </View>
-        <View style={styles.zakatContainer}>
-          {data.balance < JODNisab ? (<Text style={styles.zakatText}>ميزانيتك لم تبلغ النصاب فلا زكاة عليك</Text>) : (
 
-            <View style={styles.zakatCalculation}>
-              <View style={styles.zakatText}>
-                <Text style={styles.zakatTitle}>مجموع الميزانية:</Text>
-                <Text style={styles.zakatTitle}>* نسبة الزكاة</Text>
-                <Text style={styles.zakatTitle}>مجموع الزكاة الواجب دفعه: </Text>
-              </View>
-              <View style={styles.zakatText}>
-              <Text style={styles.zakatText}>{data.balance}</Text>
-              <Text style={styles.zakatText}>2.5%</Text>
-              <Text style={styles.zakatText}>{zakatValue} دينارًا أردنيًا</Text>
-              </View>
+        {/* summary container */}
+        <View >
+          <View style={styles.summaryContainer}>
+            {data.balance < JODNisab ? (<Text style={styles.noZakatText}>ميزانيتك لم تبلغ النصاب فلا زكاة عليك</Text>) : (
+              <View>
+                <View>
+                  <Text style={styles.zakatTitle}>مجموع الميزانية</Text>
+                  <Text style={styles.zakatTitle}>نسبة الزكاة</Text>
+                </View>
+                <View>
+                  <Text style={styles.zakatText}>{data.balance}</Text>
+                  <Text style={styles.zakatText}>2.5%</Text>
+                </View>
+              </View>)}
 
-            </View>)}
+          </View>
         </View>
-
+        {/* result container */}
+        {data.balance < JODNisab ? (<Text></Text>) : (
+          <View style={styles.resultContainer}>
+            <Text style={styles.zakatTitle}>مجموع الزكاة الواجب دفعه (بالدينار): </Text>
+            <Text style={styles.resultText}>{zakatValue}</Text>
+          </View>)}
       </View>
+
+
+
     </View>
   );
 }
@@ -92,34 +113,78 @@ const styles = StyleSheet.create({
     backgroundColor: globalStyles.secondaryColor,
 
   },
+  // about container
   aboutContainer: {
     backgroundColor: globalStyles.tertiaryColor,
     paddingHorizontal: 10,
-    paddingVertical: 20,
+    paddingVertical: 10,
     display: "flex",
-    margin: 20,
+    margin: 10,
     borderRadius: 10,
   },
   about: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#000"
-  },
-  aboutText: {
-    fontSize: 18,
     color: "#000",
-    marginTop: 10
+    textAlign: "center",
   },
-  zakatCalculation: {
+  zakatAya: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: globalStyles.primaryColor,
+    marginVertical: 10,
+
+  },
+  // nisap container
+
+  nisapContainer: {
     backgroundColor: globalStyles.tertiaryColor,
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingVertical: 0,
     display: "flex",
-    flexDirection:"row-reverse",
-    margin: 20,
+    flexDirection: "row-reverse",
+    margin: 10,
     borderRadius: 10,
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    margin: 10,
+    borderRadius: 10,
   },
+
+  // summary container
+
+  summaryContainer: {
+    backgroundColor: globalStyles.tertiaryColor,
+    paddingHorizontal: 10,
+    paddingVertical: 0,
+    display: "flex",
+    flexDirection: "row-reverse",
+    margin: 10,
+    borderRadius: 10,
+    justifyContent: "space-between",
+    margin: 10,
+    borderRadius: 10,
+  },
+  // result container
+
+  resultContainer: {
+    backgroundColor: globalStyles.tertiaryColor,
+    paddingHorizontal: 10,
+    paddingVertical: 0,
+    display: "flex",
+    flexDirection: "column",
+    margin: 10,
+    borderRadius: 10,
+    margin: 10,
+    alignItems: "center",
+    borderRadius: 10,
+  },
+  resultText: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: globalStyles.primaryColor,
+  },
+
+
   zakatTitle: {
     fontSize: 18,
     color: "#000",
@@ -130,5 +195,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
     marginVertical: 10
+  },
+  noZakatText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+    marginVertical: 10,
+    paddingRight: 50
   }
 });

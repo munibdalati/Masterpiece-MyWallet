@@ -92,26 +92,26 @@ export default function Settings() {
             <Text style={styles.itemText}>حاسبة الزكاة</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item}>
-            <Text style={styles.itemText}>الصرف</Text>
+            <Text style={styles.itemTextDisabled}>الصرف</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item}>
-            <Text style={styles.itemText}>الدخل</Text>
+            <Text style={styles.itemTextDisabled}>الدخل</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item}>
-            <Text style={styles.itemText}>الاستثمارات </Text>
+            <Text style={styles.itemTextDisabled}>الاستثمارات </Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item}>
-            <Text style={styles.itemText}> الديون</Text>
+            <Text style={styles.itemTextDisabled}> الديون</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.item}>
-            <Text style={styles.itemText}> العملة الرئيسية</Text>
+            <Text style={styles.itemTextDisabled}> العملة الرئيسية</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item}>
-            <Text style={styles.itemText}> الحسابات بالعملات الأخرى</Text>
+            <Text style={styles.itemTextDisabled}> الحسابات بالعملات الأخرى</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item}>
-            <Text style={styles.itemText}>لغة التطبيق</Text>
+            <Text style={styles.itemTextDisabled}>لغة التطبيق</Text>
             <Text style={styles.itemValue}>{language}</Text>
           </TouchableOpacity>
         </View>
@@ -195,6 +195,11 @@ const styles = StyleSheet.create({
   },
   itemText: {
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  itemTextDisabled:{    fontSize: 16,
+    color:"gray",
+    
   },
   itemValue: {
     fontSize: 16,
