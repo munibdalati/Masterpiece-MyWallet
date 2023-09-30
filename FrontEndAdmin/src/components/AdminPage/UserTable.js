@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Table from "react-bootstrap/Table";
 import Container from "react-bootstrap/Container";
-import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import axios from "axios";
 import "../../style/ConfirmWindow.css";
+import { Link } from "react-router-dom";
+
 
 function UserTable() {
+  // Tabel Headings
   const tableHeadings = [
     "Name",
     "Email",
@@ -18,7 +20,7 @@ function UserTable() {
   ];
 
   const [data, setData] = useState([]);
-  const [selectedTitle, setSelectedTitle] = useState("");
+  const [selectedEmail, setSelectedEmail] = useState("");
   const [showAlert, setShowAlert] = useState(false); // State variable for showing/hiding the confirmation alert
   const [deleteCandidateId, setDeleteCandidateId] = useState(null); // Track the candidate ID to delete
   const [deleteCandidateTitle, setDeleteCandidateTitle] = useState(""); // Track the candidate title to delete
@@ -42,8 +44,8 @@ function UserTable() {
 
 
   // Filter the users based on the selected title
-  const filteredUsers = selectedTitle
-    ? data.filter((user) => user.title === selectedTitle)
+  const filteredUsers = selectedEmail
+    ? data.filter((user) => user.email === selectedEmail)
     : data;
 
   // delete Applciation function
@@ -81,10 +83,11 @@ function UserTable() {
     id: null,
     username: "",
     email: "",
-    age: "",
-    gender: "",
+    age: null,
+    gender: null,
   });
 
+  // edit data
   const handleEdit = (user) => {
     setEditData({
       id: user._id,
@@ -116,6 +119,7 @@ function UserTable() {
       });
   };
 
+  // sorting users by date registered
   const [sortOrder, setSortOrder] = useState("asc"); // "asc" for ascending, "desc" for descending
 
 
@@ -123,7 +127,7 @@ function UserTable() {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
-  // Sort the filtered vacancies based on the deadline
+  // Sort the filtered vacancies based on the date registered
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (sortOrder === "asc") {
       return new Date(a.createdAt) - new Date(b.createdAt);
@@ -131,10 +135,22 @@ function UserTable() {
       return new Date(b.createdAt) - new Date(a.createdAt);
     }
   });
+
+
+
   return (
     <Container>
       <h1 style={{ textAlign: "center" }}>Welcome to My Wallet Admin Dashboard</h1>
+      <Row style={{ marginRight: "1%" }}>
+        <Col xs={11}></Col>
+        <Col>
+        <Link to="/AddUser" >
+          <i class="fa-solid fa-user-plus" style={{ color: "#C08261", textAlign: "right", cursor: "pointer" }}></i>
+        </Link>
+        </Col>
 
+
+      </Row>
       {data.length === 0 ? (
         <h4 className="text-center my-5">No Users are registered at the moment</h4>
       ) : (

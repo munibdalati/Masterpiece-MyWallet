@@ -1,10 +1,10 @@
 import React from "react";
 import NavComponent from "../components/Shared/NavComponent";
 import Footer from "../components/Shared/Footer";
-import VacancyForm from "../components/Vacancies/VacancyForm";
+import AddUserForm from "../components/Vacancies/AddUserForm";
 import "../style/AdminPanel.css"
 
-function AddVacancy() {
+function AddUser() {
   const containerStyle = {
     display: "flex",
     flexDirection: "column",
@@ -19,11 +19,11 @@ function AddVacancy() {
     <div style={containerStyle}>
       <NavComponent />
       <div style={contentStyle}>
-        <VacancyForm />
+        <AddUserForm />
       </div>
       <Footer />
     </div>
   );
 }
 
-export default AddVacancy;
+export default AddUser;

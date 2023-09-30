@@ -73,14 +73,14 @@
   }
 }
 
-.btn-orange {
-  background-color: #f7ebe7;
-  border-color: #ff8947;
-  color: #ff8947;
+.btn-orange:hover  {
+  background-color: var(--tertiaryColor);
+  border-color: var(--primaryColor);
+  color: var(--primaryColor);
 }
-.btn-orange:hover {
-  background-color: #ff8947;
-  border-color: #ff8947;
-  color: #f7ebe7;
+.btn-orange{
+  background-color: var(--primaryColor);
+  border-color: var(--primaryColor);
+  color: var(--tertiaryColor);
 }
 
