@@ -8,6 +8,7 @@ import SignUp from "../screens/signUp";
 import SignIn from "../screens/signIn";
 import Personal from "../screens/personal";
 import Zakat from "../screens/zakat";
+import ForgotPassword from "../screens/forgotPassword";
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +46,11 @@ const Routes = () => {
       <Stack.Screen
         name="SignIn"
         component={SignIn}
+        options={{ headerShown: false }}
+      />
+       <Stack.Screen
+        name="ForgotPassword"
+        component={ForgotPassword}
         options={{ headerShown: false }}
       />
       <Stack.Screen

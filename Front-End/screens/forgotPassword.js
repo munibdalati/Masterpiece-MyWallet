@@ -20,75 +20,58 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // Validation
 const reviewSchema = yup.object({
   email: yup.string().required("مطلوب").email("أدخل بريد إلكتروني صالح"),
-  password: yup
-    .string()
-    .required("مطلوب")
-    .min(6, "كلمة السر يجب أن تكون مؤلفة من 6 رموز على الأقل"),
 });
 
-export default function SignIn() {
+export default function ForgotPassword() {
   const navigation = useNavigation();
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const authToken = await AsyncStorage.getItem("authToken");
-      if (authToken) {
-        navigation.navigate("HomePage");
-      }
-    };
-    checkAuth();
-  }, []);
+  const forgotPasswordHandler = async (e) => {
+    // e.preventDefault();
 
-  const loginHandler = async (values) => {
-    const url = "http://10.0.2.2:8000/api/user/login";
-    const { email, password } = values;
     const config = {
-      headers: {
+      header: {
         "Content-Type": "application/json",
       },
     };
 
     try {
-      const { data } = await axios.post(url, values, config);
+      const { data } = await axios.post(
+        "http://10.0.2.2:8000/api/user/forgotPassword/",
+        { email },
+        config
+      );
 
-      const username = data.data.user.username;
-      const id = data.data.user._id;
-
-      await AsyncStorage.multiSet([
-        ["authToken", data.token],
-        ["_id", id],
-        ["username", username],
-        ["password", password],
-        ["email", email],
-      ]);
-
-      navigation.navigate("HomePage");
-
-      console.log("data:", data);
-      console.log(data.data.user.username);
+      setSuccess(data.data);
     } catch (error) {
-      console.log("Error:", error);
-      setError(error.response.data.error || "An error occurred");
+      console.error("Error sending request:", error);
+
+      setError(error.response.data.error);
+      setEmail("");
       setTimeout(() => {
         setError("");
-      }, 8000);
+      }, 5000);
     }
   };
+
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
-        <Header title="تسجيل دخول" showTotal={false} loggedIn={false} />
+        <Header title="استعادة كلمة السر" showTotal={false} loggedIn={false} />
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.formContainer}>
+            {error && <Text style={styles.error - message}>{error}</Text>}
+            {success && <Text style={styles.success - message}>{success}</Text>}
+
             <Formik
               validationSchema={reviewSchema}
               initialValues={{
                 email: "",
-                password: "",
               }}
-              onSubmit={(values) => loginHandler(values)}
+              onSubmit={forgotPasswordHandler}
             >
               {(props) => (
                 <View style={styles.form}>
@@ -104,55 +87,25 @@ export default function SignIn() {
                   <Text style={styles.errorText}>
                     {props.touched.email && props.errors.email}
                   </Text>
-  
-                  {/* كلمة السر */}
-                  <Text style={styles.label}>كلمة السر:</Text>
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={props.handleChange("password")}
-                    onBlur={props.handleBlur("password")}
-                    value={props.values.password}
-                    textAlign="right"
-                    secureTextEntry={true}
+
+
+                  {/* زر تسجيل الدخول */}
+                  <FlatButton
+                    text="استعادة كلمة المرور"
+                    onPress={props.handleSubmit}
+                    type="submit"
                   />
                   {/* نسيت كلمة السر*/}
                   <Text style={styles.forgetPasswordText}>
                     <Text
                       style={styles.link}
                       onPress={() => {
-                        navigation.navigate("ForgotPassword");
+                        navigation.navigate("SignIn");
                       }}
                     >
-                    نسيت كلمة السر؟
-                    </Text>
+                      العودة إلى تسجيل الدخول                    </Text>
                   </Text>
-                  <Text style={styles.errorText}>
-                    {props.touched.password && props.errors.password}
-                  </Text>
-  
-                  {/* Conditional rendering of mainErrorText */}
-                  {error ? (
-                    <Text style={styles.mainErrorText}>{error}</Text>
-                  ) : null}
-  
-                  {/* زر تسجيل الدخول */}
-                  <FlatButton
-                    text="تسجيل الدخول"
-                    onPress={props.handleSubmit}
-                    type="submit"
-                  />
-                  {/* ليس عندك حساب؟ */}
-                  <Text style={styles.subtext}>
-                    ليس عندك حساب؟{" "}
-                    <Text
-                      style={styles.link}
-                      onPress={() => {
-                        navigation.navigate("SignUp");
-                      }}
-                    >
-                      إنشاء حساب
-                    </Text>
-                  </Text>
+
                 </View>
               )}
             </Formik>
@@ -161,7 +114,7 @@ export default function SignIn() {
       </View>
     </TouchableWithoutFeedback>
   );
-  
+
 }
 const styles = StyleSheet.create({
   container: {
@@ -196,9 +149,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "right",
   },
-  forgetPasswordText:{    marginTop: 16,
+  forgetPasswordText: {
+    marginTop: 16,
     fontSize: 16,
-    textAlign: "right",},
+    textAlign: "right",
+  },
 
   link: {
     color: globalStyles.quaternaryColor,

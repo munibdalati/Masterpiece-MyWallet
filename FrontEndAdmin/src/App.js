@@ -1,6 +1,8 @@
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import AdminPanel from "./screens/AdminPanel";
 import AddUser from "./screens/AddUser";
+import ResetPasswordScreen from "./screens/ResetPasswordScreen";
+
 
 
 function App() {
@@ -12,6 +14,8 @@ function App() {
       <Routes>
         <Route path="/" Component={AdminPanel}></Route>
         <Route path="/AddUser" Component={AddUser}></Route>
+        <Route path="/api/user/resetPassword/:resetToken" Component={ResetPasswordScreen}></Route>
+        
       </Routes>
     </BrowserRouter>
   );

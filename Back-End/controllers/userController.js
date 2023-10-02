@@ -74,6 +74,7 @@ exports.loginUser = async (req, res) => {
       },
       token: token,
     });
+
   } catch (error) {
     res.status(400).json({ status: "fail", error: error.message });
   }
@@ -167,7 +168,7 @@ exports.forgotPassword = async (req, res, next) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
-
+    console.log(email)
     if (!user) {
       return next(new ErrorResponse("Email could not be sent", 404));
     }
@@ -175,7 +176,7 @@ exports.forgotPassword = async (req, res, next) => {
     await user.save();
 
     //The link which will be sent by email
-    const resetUrl = `http://localhost:3000/passwordreset/${resetToken}`;
+    const resetUrl = `http://localhost:3000/api/user/resetPassword/${resetToken}`;
     const message = `
 <h1>You have requested a password reset</h1>
 <p>Please go to this link to reset your password</p>
@@ -223,18 +224,10 @@ exports.resetPassword = async (req, res, next) => {
     res.status(201).json({
       success: true,
       data: "Password Reset Success",
-      // token: user.getSignedToken(),
+      token: user.getSignedToken(),
     });
   } catch (error) {
     next(error);
   }
 };
 
-const sendToken = (user, statusCode, res) => {
-  // const token = user.getSignedJwtToken();
-  const token = user.getSignedToken();
-  res.status(statusCode).json({
-    success: true,
-    token: token,
-  });
-};

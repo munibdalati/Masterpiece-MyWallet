@@ -20,9 +20,9 @@ router.put("/update/:id", userController.updateUser);
 router.delete("/delete/:id", userController.deleteUser);
 
 // ----------------- forgot password route -----------------
-// router.post('/forgot-password', userController.forgotPassword);
+router.post('/forgotPassword', userController.forgotPassword);
 
 // ----------------- reset password route -----------------
-// router.put('/reset-password/:resetToken', userController.resetPassword);
+router.put('/resetPassword/:resetToken', userController.resetPassword);
 
 module.exports = router;
