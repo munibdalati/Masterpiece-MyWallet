@@ -5,12 +5,18 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused } from "@react-navigation/native"; // Import useIsFocused
+import { useNavigation } from "@react-navigation/native";
 
 export default function HeaderSummary() {
+  const navigation = useNavigation();
+
+
   const [id, setId] = useState("");
   const [expense, setExpense] = useState("");
   const [income, setIncome] = useState("");
+
   let remaining = income - expense
+
  
   const isFocused = useIsFocused(); // Track if the screen is focused
 
@@ -42,8 +48,9 @@ export default function HeaderSummary() {
       })
 
       .catch((error) => {
-        console.error("Error fetching data: ", error.message);
+        console.log("Error fetching data: ", error.message);
       });}
+      navigation.setParams({ remaining });
   }, [id, isFocused]);
 
   return (
@@ -66,7 +73,7 @@ export default function HeaderSummary() {
           <Text style={styles.headerSummaryTitle}>الشهر</Text>
         </View>
 
-        <Text style={styles.month}>حزيران 2023</Text>
+        <Text style={styles.month}>11/2023</Text>
       </View>
     </View>
   );

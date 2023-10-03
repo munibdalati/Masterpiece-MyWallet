@@ -1,7 +1,7 @@
 import React from "react";
 import NavComponent from "../components/Shared/NavComponent";
 import Footer from "../components/Shared/Footer";
-import AddUserForm from "../components/Vacancies/AddUserForm";
+import AddUserForm from "../components/AddUser/AddUserForm";
 import "../style/AdminPanel.css"
 
 function AddUser() {

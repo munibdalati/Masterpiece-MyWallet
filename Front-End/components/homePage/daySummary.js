@@ -73,7 +73,7 @@ export default function DaySummary() {
           }
         })
         .catch((error) => {
-          console.error("Error fetching data: ", error.message);
+          console.log("Error fetching data: ", error.message);
         });
     }
   }, [id, isFocused]);

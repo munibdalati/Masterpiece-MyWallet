@@ -299,6 +299,8 @@ export default function Personal() {
               <View style={styles.editInput}>
                 <TextInput
                   value={age}
+                  keyboardType="numeric"
+
                   onChangeText={(text) => setAge(text)}
                 />
               </View>

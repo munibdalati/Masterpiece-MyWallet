@@ -34,7 +34,6 @@ export default function AmountEntryExpense() {
   // Define state variables for form inputs
 
   const [isFocusCurrency, setIsFocusCurrency] = useState(false);
-
   const [isFocusCashCard, setIsFocusCashCard] = useState(false);
   const [isFocusCategory, setIsFocusCategory] = useState(false);
 
@@ -238,6 +237,7 @@ export default function AmountEntryExpense() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View>
+      {/* تاريخ الحركة */}
         <View style={styles.dateSelection}>
           <Text style={styles.dateText}>{text}</Text>
           <TouchableOpacity
@@ -351,6 +351,7 @@ export default function AmountEntryExpense() {
               </View>
             </View>
           </View>
+          {/* القيمة */}
           <View style={styles.TextInputContainer}>
             <TextInput
               style={styles.input}

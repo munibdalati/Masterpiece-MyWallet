@@ -2,19 +2,21 @@ import { View, Text, StyleSheet } from "react-native";
 import { globalStyles } from "../styles/global";
 import { Feather } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import React from "react"
 
 export default function Header({ title, showTotal, loggedIn, homeIcon }) {
   const navigation = useNavigation();
-  const [balance, setBalance] = useState("");
- 
 
+
+
+  const [balance, setBalance] = useState("");
   const [id, setId] = useState("");
 
-  // Retrieve the information from AsyncStorage
+  // // Retrieve the information from AsyncStorage
   useEffect(() => {
     AsyncStorage.getItem("_id")
       .then((value) => {
@@ -26,22 +28,24 @@ export default function Header({ title, showTotal, loggedIn, homeIcon }) {
         console.error("Error retrieving id:", error);
       });
   }, []);
-  useEffect(() => {
-    // Make the API call within a useEffect hook
-    axios
-      .get(`http://10.0.2.2:8000/api/wallet/getUserWallet/${id}`)
+  useFocusEffect(
+    React.useCallback(() => {
+      // Make the API call within a focus effect
+      axios
+        .get(`http://10.0.2.2:8000/api/wallet/getUserWallet/${id}`)
+        .then((res) => {
+          const wallet = res.data.data.wallet;
+          if (wallet) {
+            setBalance(wallet.balance);
+          }
+        })
+        .catch((error) => {
+          console.log("Error fetching data: ", error.message);
+        });
+    }, [id])
+  );
+  
 
-      .then((res) => {
-        const wallet = res.data.data.wallet;
-        if (wallet) {
-          setBalance(wallet.balance);
-        }
-      })
-
-      .catch((error) => {
-        console.error("Error fetching data: ", error.message);
-      });
-  }, [id]);
 
   return (
     <View style={styles.header}>

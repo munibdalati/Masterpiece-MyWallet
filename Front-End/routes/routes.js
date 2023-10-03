@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState} from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "../screens/home";
 import AddExpense from "../screens/addExpense";
@@ -9,14 +9,20 @@ import SignIn from "../screens/signIn";
 import Personal from "../screens/personal";
 import Zakat from "../screens/zakat";
 import ForgotPassword from "../screens/forgotPassword";
+import Splash from "../screens/splash";
 
 const Stack = createNativeStackNavigator();
 
 const Routes = () => {
   return (
     <Stack.Navigator
-      initialRouteName="SignIn" 
+      initialRouteName="Splash" 
     >
+          <Stack.Screen
+        name="Splash"
+        component={Splash}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="SignUp"
         component={SignUp}

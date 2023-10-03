@@ -38,7 +38,7 @@ export default function Zakat() {
         setData(res.data.data.wallet);
       })
       .catch((error) => {
-        console.error("Error fetching data: ", error);
+        console.log("Error fetching data: ", error);
       });
   }, [id]);
 
@@ -78,9 +78,12 @@ export default function Zakat() {
 
         {/* summary container */}
         <View >
-          <View style={styles.summaryContainer}>
-            {data.balance < JODNisab ? (<Text style={styles.noZakatText}>ميزانيتك لم تبلغ النصاب فلا زكاة عليك</Text>) : (
-              <View>
+          <View>
+            {data.balance < JODNisab ? (
+              <View style={styles.summaryContainer}>
+              <Text style={styles.noZakatText}>ميزانيتك لم تبلغ النصاب فلا زكاة عليك</Text>
+              </View>) : (
+              <View style={styles.summaryContainer}>
                 <View>
                   <Text style={styles.zakatTitle}>مجموع الميزانية</Text>
                   <Text style={styles.zakatTitle}>نسبة الزكاة</Text>
@@ -159,9 +162,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row-reverse",
     margin: 10,
-    borderRadius: 10,
     justifyContent: "space-between",
-    margin: 10,
     borderRadius: 10,
   },
   // result container
